@@ -4,22 +4,23 @@
 classdef TrialIndexer < handle
   
   properties (SetAccess = private, GetAccess = public)
-    trialN;
-    trialPerm;
-    trialComp;  %track trials completed
-    trialInd;  %will step to 1 if no error 
+    trialN
+    trialPerm
+    trialComp       %track trials completed
+    trialInd        %will step to 1 if no error 
   end % properties
    
   % dependent properties, calculated on the fly...
   properties (SetAccess = public, GetAccess = public)
-    corstates@double;             % correct states to continue trial  
-    repstates@double;             % error states for which to repeat trial
-    RepeatUntilCorrect@double;    % if one, repeat till all trials correct
+    corstates           double    % correct states to continue trial  
+    repstates           double    % error states for which to repeat trial
+    RepeatUntilCorrect  double    % if one, repeat till all trials correct
   end
   
   methods
       
-    function o = TrialIndexer(TrialsList,P,corstates,repstates) % h is the handle for the marmoview gui
+    function o = TrialIndexer(TrialsList,P,corstates,repstates) 
+        % h is the handle for the marmoview gui
       
       if (isempty(TrialsList))
           o.trialN = 1;   %it will always return trial 1 if so

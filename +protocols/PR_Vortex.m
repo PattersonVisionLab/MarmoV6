@@ -89,7 +89,7 @@ classdef PR_Vortex < handle
            % nothing for this protocol
     end
     
-    function P = next_trial(o,S,P);
+    function P = next_trial(o,S,P)
           %********************
 %           o.S = S;
 %           o.P = P;       

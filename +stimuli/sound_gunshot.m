@@ -9,7 +9,7 @@ classdef sound_gunshot < handle
   end 
    
   methods
-    function o = sound_gunshot(o,varargin),  
+    function o = sound_gunshot(o,varargin)  
         %********** load in a fixation error sound ************
         [y,fs] = audioread(['SupportData',filesep,'gunshot_sound.wav']);
         y = y(1:floor(size(y,1)/3),:);  % shorten it, very long sound
@@ -18,11 +18,11 @@ classdef sound_gunshot < handle
         %****************
     end
     
-    function deliver(o,varargin),
+    function deliver(o,varargin)
         sound(o.fixbreak_sound,o.fixbreak_sound_fs);
     end
     
-    function r = report(o),
+    function r = report(o)
       r = [];
     end
   end % methods

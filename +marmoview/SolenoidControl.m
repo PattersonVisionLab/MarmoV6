@@ -19,7 +19,7 @@ classdef SolenoidControl < handle % marmoview.liquid
   end % properties
 
    properties (Dependent, SetAccess = public, GetAccess = public)
-     volume@double = 0;   % dispensing volume (mL)
+     volume     double      = 0;   % dispensing volume (mL)
    end
 
    %% Public
@@ -61,16 +61,16 @@ classdef SolenoidControl < handle % marmoview.liquid
           delete(o.SerialPort);
      end
 
-     function o = set.volume(o,value),
+     function o = set.volume(o,value)
         % note: not volume for solenoid, but duration of pulse
         o.JuicerDuration  = value;  % ul in the GUI, is millisecs here
      end
 
-     function value = get.volume(o),
+     function value = get.volume(o)
        value = o.JuicerDuration; %
      end
     
-    function err = deliver(obj,varargin),
+    function err = deliver(obj,varargin)
       err = 0;
       tmr = timer('StartFcn',@(ev,ob)fprintf(obj.SerialPort,  [obj.EndLine obj.TurnOnCmd obj.JuicerPort obj.EndLine],  'sync'), ...
                'TimerFcn',@(ev,ob)pause(obj.JuicerDuration), ...
@@ -79,7 +79,7 @@ classdef SolenoidControl < handle % marmoview.liquid
       start(tmr)
     end
 
-    function r = report(o),
+    function r = report(o)
       r.totalVolume = 0; 
     end
     

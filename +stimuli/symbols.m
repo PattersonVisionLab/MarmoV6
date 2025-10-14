@@ -10,7 +10,7 @@ classdef symbols < handle
   
   % 14-06-2016 - Shaun L. Cloherty <s.cloherty@ieee.org>
   
-  properties (Access = public),
+  properties (Access = public)
     size = 0; % pixels
     type = 1; % circle for 1, square for 2, triangle 3, diamond 4
     colour = ones([1,3]); % clut index or [r,g,b]
@@ -22,10 +22,10 @@ classdef symbols < handle
   end
   
   methods (Access = public)
-    function o = symbols(winPtr,varargin), % marmoview's initCmd?
+    function o = symbols(winPtr,varargin) % marmoview's initCmd?
       o.winPtr = winPtr;
       
-      if nargin == 1,
+      if nargin == 1
         return
       end
 
@@ -34,14 +34,14 @@ classdef symbols < handle
       p = inputParser;
 %       p.KeepUnmatched = true;
       p.StructExpand = true;
-      p.addParamValue('size',o.size,@isfloat); % pixels
-      p.addParamValue('type',o.type,@isfloat); % pixels
-      p.addParamValue('colour',o.colour,@isfloat); % clut index or [r,g,b]
-      p.addParamValue('position',o.position,@isfloat); % [x,y] (pixels)
+      p.addParameter('size',o.size,@isfloat); % pixels
+      p.addParameter('type',o.type,@isfloat); % pixels
+      p.addParameter('colour',o.colour,@isfloat); % clut index or [r,g,b]
+      p.addParameter('position',o.position,@isfloat); % [x,y] (pixels)
                   
       try
         p.parse(args{:});
-      catch,
+      catch
         warning('Failed to parse name-value arguments.');
         return;
       end
@@ -54,7 +54,7 @@ classdef symbols < handle
       o.position = args.position;
     end
         
-    function beforeTrial(o), % marmoview's nextCmd?
+    function beforeTrial(o) % marmoview's nextCmd?
     end
     
     function beforeFrame(o) % Run to draw object
@@ -73,7 +73,7 @@ classdef symbols < handle
   end % methods
     
   methods (Access = public)        
-    function drawSymbols(o),
+    function drawSymbols(o)
         
       r = floor(o.size./2); % radius in pixels
       rect = kron([1,1],o.position) + kron(r(:),[-1, -1, +1, +1]);

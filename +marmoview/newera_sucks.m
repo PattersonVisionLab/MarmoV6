@@ -27,30 +27,30 @@ classdef newera < marmoview.liquid
 
   methods % set/get dependent properties
     % dependent property set methods
-    function o = set.diameter(o,value),
+    function o = set.diameter(o,value)
         o.setdia(value);
     end
 
-    function o = set.volume(o,value),
-        if o.diameter <= 14.0,
+    function o = set.volume(o,value)
+        if o.diameter <= 14.0
           value = value*1e3; % microliters
         end
         o.setvol(value);
     end
 
-    function o = set.rate(o,value),
+    function o = set.rate(o,value)
         o.setrate(value);
     end
 
     % dependent property get methods
-    function value = get.diameter(o),
+    function value = get.diameter(o)
         value = 0;
 %         [err,status,msg,~] = IOPort('Write', o.h, ['DIA' o.commandSeparator],0); %0.05
 %         assert(err == 0);
 %         value = str2num(msg);
     end
 
-    function value = get.volume(o),
+    function value = get.volume(o)
         value = 0;
 %       [err,status,msg,~] = IOPort('Write', o.h, ['VOL' o.commandSeparator],0); 
 %       assert(err == 0);
@@ -73,7 +73,7 @@ classdef newera < marmoview.liquid
 %       end
     end
 
-    function value = get.rate(o),
+    function value = get.rate(o)
         value = 0;
 %       [err,status,msg,~] = IOPort('Write', o.h, ['RAT' o.commandSeparator],0); 
 %       assert(err == 0);
@@ -100,7 +100,7 @@ classdef newera < marmoview.liquid
   end
 
   methods
-    function o = newera(h,varargin), % h is the handle for the marmoview gui
+    function o = newera(h,varargin) % h is the handle for the marmoview gui
 %       fprintf(1,'marmoview.newera()\n');
 
       o = o@marmoview.liquid(h,varargin{:}); % call parent constructor
@@ -110,11 +110,11 @@ classdef newera < marmoview.liquid
       p = inputParser;
       p.KeepUnmatched = true;
       p.StructExpand = true;
-      p.addParamValue('port','COM1',@ischar); % default to COM1?
+      p.addParameter('port','COM1',@ischar); % default to COM1?
       
-      p.addParamValue('diameter',20.0,@isreal); % mm
-      p.addParamValue('volume',0.010,@isreal); % ml
-      p.addParamValue('rate',10.0,@isreal); % ml per minute
+      p.addParameter('diameter',20.0,@isreal); % mm
+      p.addParameter('volume',0.010,@isreal); % ml
+      p.addParameter('rate',10.0,@isreal); % ml per minute
 
       p.parse(varargin{:});
 
@@ -180,7 +180,7 @@ classdef newera < marmoview.liquid
   
     end
 
-    function [err,status] = open(o),
+    function [err,status] = open(o)
       % query the pump
       [err,status,~] = IOPort('Write', o.h, ['' o.commandSeparator],0);
       assert(err == 0);
@@ -190,58 +190,58 @@ classdef newera < marmoview.liquid
       assert(err == 0);
     end
     
-    function close(o),
+    function close(o)
       IOPort('close',o.h)
     end
     
-    function delete(o),
-      try,
+    function delete(o)
+      try
         o.close(); % fails if o.dev is invalid or is already closed
       catch
       end
       delete(o.h);
     end
    
-    function err = deliver(o,varargin),
+    function err = deliver(o,varargin)
         err = 0;
         err = IOPort('Write', o.h, ['RUN' o.commandSeparator],0);  
     end
 
-    function r = report(o),
+    function r = report(o)
        r.totalVolume = o.qryvol();
     end
   end % methods
 
   methods (Access = private)
-    function err = setdia(o,d), % set syringe diameter
+    function err = setdia(o,d) % set syringe diameter
         err = 0;
       %  IOPort('Write', o.h, ['DIA ' num2str(o.diameter) o.commandSeparator],0);
     end
 
-    function err = setvol(o,d), % set dispensing volume
+    function err = setvol(o,d) % set dispensing volume
       % set reward volume & units (def: 0.05, 'ML')
 %       o.volume = d;
       err = 0;
      % IOPort('Write', o.h, ['VOL ' num2str(o.volume) ' ' 'ML' o.commandSeparator],0);%0.05
     end
 
-    function err = setrate(o,d), % set dispensing rate
+    function err = setrate(o,d) % set dispensing rate
 %        o.rate = d; 
        err = 0;
      %  IOPort('Write', o.h, ['RAT ' num2str(o.rate) ' MH ' o.commandSeparator],0);%2900
     end
     
-    function err = run(o), % start the pump
+    function err = run(o) % start the pump
        err = 0;
        IOPort('Write', o.h, ['RUN' o.commandSeparator],0);
     end
     
-    function err = stop(o), % stop the pump
+    function err = stop(o) % stop the pump
        err = 0;
     %   IOPort('Write', o.h, ['STP' o.commandSeparator],0);
     end   
     
-    function err = clrvol(o,d), % clear dispensed/withdrawn volume
+    function err = clrvol(o,d) % clear dispensed/withdrawn volume
        err = 0;
 %        switch d,
 %         case 0, % clear infused volume
@@ -253,7 +253,7 @@ classdef newera < marmoview.liquid
 %        end
     end
     
-    function [infu,wdrn] = qryvol(o), % query dispensed/withdrawn volume
+    function [infu,wdrn] = qryvol(o) % query dispensed/withdrawn volume
         infu = 0;
         wdrn = 0;
         
@@ -287,16 +287,16 @@ classdef newera < marmoview.liquid
         wdrn = res.withdrawn;
     end
     
-    function err = beep(o,n), % sound the buzzer
+    function err = beep(o,n) % sound the buzzer
           err = 0;
-          if nargin < 2,
+          if nargin < 2
             n = 1;
           end
           cmd = sprintf('BUZ 1 %i',n);
           IOPort('Write', o.h, [cmd o.commandSeparator],0);
     end
     
-    function flushin(o),
+    function flushin(o)
           IOPort('Flush',o.h);
     end
      

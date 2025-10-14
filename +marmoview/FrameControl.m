@@ -79,7 +79,7 @@ classdef FrameControl < handle
 
   methods (Access = public)
   
-     function o = initialize(o,winPtr,P,C,S,varargin), 
+     function o = initialize(o,winPtr,P,C,S,varargin) 
            % winPtr is the window point of psych display
            % P is the parameter struct defined by settings
            % C is the eye calibration struct

@@ -13,7 +13,7 @@ classdef grating < handle
   
   % 14-08-2018 - Jude Mitchell
   
-  properties (Access = public),
+  properties (Access = public)
     position   = [0.0, 0.0]; % [x,y] (pixels)
     radius   = 50; % (pixels)
     orientation   = 0;  % horizontal
@@ -44,7 +44,7 @@ classdef grating < handle
       o.texRect = [];
       o.goRect = [];
       
-      if nargin == 1,
+      if nargin == 1
         return
       end
 
@@ -200,7 +200,7 @@ classdef grating < handle
        end
     end
     
-    function CloseUp(o),
+    function CloseUp(o)
        if ~isempty(o.tex)
            Screen('Close',o.tex);
            o.tex = [];

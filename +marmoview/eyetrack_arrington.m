@@ -5,34 +5,34 @@ classdef eyetrack_arrington < handle
   %******* basically is just a wrapper for a bunch of VPX calls
   % the VPX toolbox enables the eye tracker to link into Matlab
   % and to store raw eye data into a .vpx file for off-line analysis
-  
+
 
   properties (SetAccess = public, GetAccess = public)
-    EyeDump@logical;
+    EyeDump     logical
   end
-  
+
   methods
-    function o = eyetrack_arrington(h,varargin), % h is the handle for the marmoview gui
+    function o = eyetrack_arrington(h, varargin) % h is the handle for the marmoview gui
 
       % initialise input parser
       args = varargin;
       p = inputParser;
-      p.addParamValue('EyeDump',true,@islogical); % default 1, do EyeDump
+      p.addParameter('EyeDump',true,@islogical); % default 1, do EyeDump
       p.parse(varargin{:});
 
-      args = p.Results;  
+      args = p.Results;
       o.EyeDump = args.EyeDump;
-      
+
       % configure the tracker and initialize...
       vpx_Initialize; % load the ViewPoint libray
-      
-      if  o.EyeDump    
+
+      if  o.EyeDump
           vpx_SendCommandString('datafile_AsynchStringData Yes');
           vpx_SendCommandString('dataFile_UnPauseUponClose True');
       end
     end
 
-    function startfile(o,handles),   
+    function startfile(o, handles)
         if o.EyeDump
           eyeFile = sprintf('%s_%s_%s_%s.vpx', ...
                             handles.outputPrefix, ...
@@ -46,37 +46,37 @@ classdef eyetrack_arrington < handle
         end
     end
 
-    function closefile(o),        
-        if o.EyeDump 
+    function closefile(o)
+        if o.EyeDump
           vpx_SendCommandString('dataFile_Close');
         end
     end
 
-    function unpause(o),    
+    function unpause(o)
         if o.EyeDump
          vpx_SendCommandString('dataFile_Pause No');
         end
     end
 
-    function pause(o),    
+    function pause(o)
         if o.EyeDump
          vpx_SendCommandString('dataFile_Pause Yes');
         end
     end
 
-    function [x,y] = getgaze(o),
+    function [x,y] = getgaze(o)
         [x,y] = vpx_GetGazePoint;
         y = 1 - y; % NEED TO INVERT SO ++ IS UP
     end
-    
-    function r = getpupil(o),
+
+    function r = getpupil(o)
         r = vpx_GetPupilSize;
     end
-    
-    function sendcommand(o,tstring),
+
+    function sendcommand(o,tstring)
         vpx_SendCommandString(['dataFile_InsertString "',tstring,'"']);
     end
-    
+
   end % methods
 
   methods (Access = private)

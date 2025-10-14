@@ -4,7 +4,7 @@ classdef PR_BackImage < handle
   % The class constructor can be called with a range of arguments:
   %
   
-  properties (Access = public),    
+  properties (Access = public)    
        Iti   = 1;        % default Iti duration
        startTime   = 0;  % trial start time
        imageOff   = 0;   % offset of image
@@ -34,7 +34,7 @@ classdef PR_BackImage < handle
         state = o.state;
     end
     
-    function initFunc(o,S,P);
+    function initFunc(o,S,P)
         o.ImoScreen = [];
         o.ImageDirectory = S.ImageDirectory;  
     end
@@ -43,7 +43,7 @@ classdef PR_BackImage < handle
         o.ImageDirectory = imagedir;
     end
     
-    function closeFunc(o),
+    function closeFunc(o)
         if (~isempty(o.ImoScreen))
             Screen('Close',o.ImoScreen);
             o.ImoScreen = [];
@@ -58,7 +58,7 @@ classdef PR_BackImage < handle
            % nothing for this protocol
     end
     
-    function P = next_trial(o,S,P);
+    function P = next_trial(o,S,P)
           %********************
           o.S = S;
           o.P = P;       
