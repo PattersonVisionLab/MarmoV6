@@ -68,18 +68,19 @@ handles.output = hObject;
 %%%%% IMPORTANT GROUNDWORK FOR THE GUI IS PLACED HERE %%%%%%%%%%%%%%%%%%%%%
 
 % GET SOME CRUCIAL DIRECTORIES -- THESE DIRECTORIES MUST EXIST!!
+marmoDir = getMarmoViewPath();
 % Present working directory, location of all GUIs
-handles.taskPath = sprintf('%s/',pwd);
+handles.taskPath = sprintf('%s/',marmoDir);
 % Settings directory, settings files should be kept here
-handles.settingsPath = sprintf('%s/Settings/',pwd);
+handles.settingsPath = sprintf('%s/Settings/',marmoDir);
 % Output directory, all data will be saved here!
-handles.outputPath = sprintf('%s/Output/',pwd);
+handles.outputPath = sprintf('%s/Output/',marmoDir);
 % Support data directory, data to support MarmoV6 or its protocols can be
 % kept here unintrusively (e.g. eye calibration values or marmoset images)
-handles.supportPath = sprintf('%s/SupportData/',pwd);
+handles.supportPath = sprintf('%s/SupportData/',marmoDir);
 %****** start with no settings file
 handles.settingsFile = 'none';
-set(handles.SettingsFile,'String',handles.settingsFile);
+set(handles.SettingsFile, 'String', handles.settingsFile);
 
 % AS DEFAULT, THE GUI WILL USE THE CALIBRATION SETTINGS AT THE END OF THE
 % LAST GUI RUN, THIS GUI SUPPORT DATA IS IN THE 'SUPPORT DATA' DIRECTORY,
@@ -88,20 +89,24 @@ set(handles.SettingsFile,'String',handles.settingsFile);
 % default 'MarmoViewLastCalib.mat' -- I suspect this won't be used, but
 % could be if two subjects had substantially different eye position gains
 handles.calibFile = 'MarmoViewLastCalib.mat';
-set(handles.RotationAngle,'String',handles.calibFile);
-load([handles.supportPath handles.calibFile]);
-handles.C.dx = dx;
-handles.C.dy = dy;
-handles.C.c = c;
+set(handles.RotationAngle, 'String', handles.calibFile);
+calStruct = load([handles.supportPath handles.calibFile]);
+if ~isfield(calStruct, 'rot')
+    calStruct.rot = 0;
+end
+handles.C = calStruct;
+% SSP handles.C.dx = S.dx;
+% SSP handles.C.dy = S.dy;
+% SSP handles.C.c = S.c;
 handles.eyeTraceRadius = 15;
 % This C structure is never changed until a protocol is cleared or
 % MarmoV6 is exited, until then, it may be reset to the C values using
 % the ResetCalib callback.
 
 % CREATE THE STRUCTURES USED BY ALL PROTOCOLS
-handles.A = struct; % Values necessary for protocols to run current trial
-handles.S = struct; % Settings for the protocol, NOT changed while running
-handles.P = struct; % Parameters for the current protocol, changeable
+handles.A = struct(); % Values necessary for protocols to run current trial
+handles.S = struct(); % Settings for the protocol, NOT changed while running
+handles.P = struct(); % Parameters for the current protocol, changeable
 handles.SI = handles.S;
 handles.PI = struct;
 
@@ -150,17 +155,21 @@ handles.A.outputFile = 'none';
 % OPEN UP COMMUNICATION WITH THE PUMP FOR REWARD DELIVERY -- THIS IS DONE
 % IMMEDIATELY USING THE RIG SETTINGS, SO THAT JUICE IS AVAILABLE TO THE
 % MARMOSET WHILE NO PROTOCOLS ARE LOADED
-if handles.S.newera, % create an @newera object for delivering liquid reward
-  handles.reward = marmoview.newera(hObject,'port',S.pumpCom,'diameter',S.pumpDiameter,'volume',S.pumpDefVol,'rate',S.pumpRate);
-else, % no syringe pump? use the @dbgreward object object instead
-  if handles.S.solenoid
-     handles.reward = marmoview.SolenoidControl(S.pumpCom); 
-     S.pumpDefVol = handles.reward.volume;
-     vol = sprintf('%d',S.pumpDefVol * 1e3);
-     set(handles.JuiceVolumeText,'String',[vol ' ms']); % displayed in microliters!!
-  else
-     handles.reward = marmoview.dbgreward(hObject);
-  end
+if handles.S.newera % create an @newera object for delivering liquid reward
+    handles.reward = marmoview.newera(hObject,...
+        'port', S.pumpCom,...
+        'diameter', S.pumpDiameter,...
+        'volume', S.pumpDefVol,...
+        'rate', S.pumpRate);
+else % no syringe pump? use the @dbgreward object object instead
+    if handles.S.solenoid
+        handles.reward = marmoview.SolenoidControl(S.pumpCom);
+        S.pumpDefVol = handles.reward.volume;
+        vol = sprintf('%d', S.pumpDefVol * 1e3);
+        set(handles.JuiceVolumeText, 'String', [vol ' ms']); % displayed in microliters!!
+    else
+        handles.reward = marmoview.dbgreward(hObject);
+    end
 end
 % % TYPICALLY, I PREFER TO HANDLES LARGER/SMALLER REWARDS BY NUMBER OF PULSES
 % INSTEAD OF CHANGING THE VOLUME, ALTHOUGH THE VOLUME CAN BE CHANGED, I
@@ -174,32 +183,32 @@ handles.A.juiceVolume = handles.reward.volume; %S.pumpDefVol;
 % button, so best to assign it now
 handles.A.juiceCounter = 0;
 
-%******** ADDED VIA SHAUN ************************
-%******* and then Arrington wrapper by Jude ******
-if handles.S.arrington, % create an @arrington eyetrack object for eye position
-  handles.eyetrack = marmoview.eyetrack_arrington(hObject,'EyeDump',S.EyeDump);
-else, % no eyetrack, use @eyetrack object instead that uses mouse pointer
-  handles.eyetrack = marmoview.eyetrack();
+% *** Initialize the eye tracker
+if handles.S.arrington % create an @arrington eyetrack object for eye position
+    handles.eyetrack = marmoview.eyetrack_arrington(hObject,'EyeDump',S.EyeDump);
+elseif handles.S.trackpixx
+    handles.eyetrack = marmoview.eyetrack_trackpixx(hObject,'EyeDump',S.EyeDump);
+else % no eyetrack, use @eyetrack object instead that uses mouse pointer
+    handles.eyetrack = marmoview.eyetrack();
 end
 %********************************************************
 
 %******** ADDED VIA AMY ************************
 %******* TrackPixx Wrapper 
-if handles.S.trackpixx, % create an @trackPixx eyetrack object for eye position
-  handles.eyetrack = marmoview.eyetrack_trackpixx(hObject,'EyeDump',S.EyeDump);
-else, % no eyetrack, use @eyetrack object instead that uses mouse pointer
-  handles.eyetrack = marmoview.eyetrack();
-end
+% if handles.S.trackpixx % create an @trackPixx eyetrack object for eye position
+%     handles.eyetrack = marmoview.eyetrack_trackpixx(hObject,'EyeDump',S.EyeDump);
+% else % no eyetrack, use @eyetrack object instead that uses mouse pointer
+%     handles.eyetrack = marmoview.eyetrack();
+% end
 %********************************************************
 
 
 
 %********* add the task controller for storing eye movements, flipping
 %********* frames
-% WRITE THE CALIBRATION DATA INTO THE EYE TRACKER PANEL AND GET THE SIZES 
-% OF GAIN AND SHIFT CONTROLS FOR CALIBRATING EYE POSITION
-% FOR UPDATE EYE TEXT TO RUN PROPPERLY, CALBIRATION MUST ALREADY BE IN
-% STRUCTURE 'A'
+% WRITE THE CALIBRATION DATA INTO THE EYE TRACKER PANEL AND GET THE SIZES
+% OF GAIN AND SHIFT CONTROLS FOR CALIBRATING EYE POSITION FOR UPDATE EYE
+% TEXT TO RUN PROPERLY, CALBIRATION MUST ALREADY BE IN STRUCTURE 'A'
 handles.A
 UpdateEyeText(handles);
 handles.shiftSize = str2double(get(handles.ShiftSize,'String'));
@@ -242,7 +251,7 @@ tstring = 'Please select SUBJECT to begin';
 set(handles.StatusText,'String',tstring);
 
 % For the protocol title, note that no protocol has been loaded yet
-set(handles.ProtocolTitle,'String','No protocol is loaded.');
+set(handles.ProtocolTitle, 'String', 'No protocol is loaded.');
 % The task light is a neutral gray when no protocol is loaded
 ChangeLight(handles.TaskLight,[.5 .5 .5]);
 UpdateEyeText(handles);

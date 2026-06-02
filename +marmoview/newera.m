@@ -40,34 +40,34 @@ classdef newera < marmoview.liquid
 
   methods % set/get dependent properties
     % dependent property set methods
-    function o = set.diameter(o,value),
+    function set.diameter(o,value)
         o.setdia(value);
     end
 
-    function o = set.volume(o,value),
+    function set.volume(o,value)
         % note: value is in ml, however, if diameter > 14.0mm, the pump
         %       is expecting volume in microliters (unless the default units
         %       have been over-riden).
-        if o.diameter <= 14.0,
+        if o.diameter <= 14.0
           value = value*1e3; % microliters
         end
         o.setvol(value);
     end
 
-    function o = set.rate(o,value),
+    function set.rate(o,value)
         o.setrate(value);
     end
 
     % dependent property get methods
-    function value = get.diameter(o),
-        [err,status,msg] = o.sndcmd('DIA');
+    function value = get.diameter(o)
+        [err,~,msg] = o.sndcmd('DIA');
         assert(err == 0);
 
         value = str2num(msg);
     end
 
-    function value = get.volume(o),
-      [err,status,msg] = o.sndcmd('VOL');
+    function value = get.volume(o)
+      [err,~,msg] = o.sndcmd('VOL');
       assert(err == 0);
 
       pat = '(?<value>[\d\.]{5})\s*(?<units>[A-Z]{2})';
@@ -78,18 +78,18 @@ classdef newera < marmoview.liquid
       % note: value should be returned in ml, however, if diameter <= 14.0mm,
       %       the pump returns the volume in microliters (unless the default
       %       units have been over-riden).
-      switch upper(tokens.units),
-        case 'ML', % milliliters
+      switch upper(tokens.units)
+        case 'ML' % milliliters
           value = value;
-        case 'UL', % microliters
+        case 'UL' % microliters
           value = value/1e3; % milliliters
-        otherwise,
+        otherwise
           warning('MARMOVIEW:NEWERA','Unknown volume units ''%s''.', tokens.units);
       end
     end
 
-    function value = get.rate(o),
-      [err,status,msg] = o.sndcmd('RAT');
+    function value = get.rate(o)
+      [err,~,msg] = o.sndcmd('RAT');
       assert(err == 0);
 
       pat = '(?<value>[\d\.]{5})\s*(?<units>[A-Z]{2})';
@@ -97,23 +97,23 @@ classdef newera < marmoview.liquid
         
       value = str2num(tokens.value);
       
-      switch upper(tokens.units),
-        case 'MM', % milliliters per minute
+      switch upper(tokens.units)
+        case 'MM' % milliliters per minute
           value = value;
-        case 'MH', % millimeters per hour
+        case 'MH' % millimeters per hour
           value = value/60.0; % milliliters per minute
-        case 'UM', % microliters per minute
+        case 'UM' % microliters per minute
           value = value/1e3; % milliliters per minute
-        case 'UH', % microliters per hour
+        case 'UH' % microliters per hour
           value = value/(60*1e3); % milliliters per minute
-        otherwise,
+          otherwise
           warning('MARMOVIEW:NEWERA','Unknown rate units ''%s''.', tokens.units);
       end 
     end
   end
 
   methods
-    function o = newera(h,varargin), % h is the handle for the marmoview gui
+    function o = newera(h,varargin) % h is the handle for the marmoview gui
 %       fprintf(1,'marmoview.newera()\n');
 
       o = o@marmoview.liquid(h,varargin{:}); % call parent constructor
@@ -123,14 +123,14 @@ classdef newera < marmoview.liquid
       p = inputParser;
       p.KeepUnmatched = true;
       p.StructExpand = true;
-      p.addParamValue('port','COM4',@ischar); % default to COM4!
-      p.addParamValue('baud',19200,@(x) any(ismember(x,[300, 1200, 2400, 9600, 19200])));
+      p.addParameter('port','COM4',@ischar); % default to COM4!
+      p.addParameter('baud',19200,@(x) any(ismember(x,[300, 1200, 2400, 9600, 19200])));
 
-      p.addParamValue('address',0,@(x) isreal);
+      p.addParameter('address',0,@(x) isreal);
       
-      p.addParamValue('diameter',20.0,@isreal); % mm
-      p.addParamValue('volume',0.010,@isreal); % ml
-      p.addParamValue('rate',10.0,@isreal); % ml per minute
+      p.addParameter('diameter',20.0,@isreal); % mm
+      p.addParameter('volume',0.010,@isreal); % ml
+      p.addParameter('rate',10.0,@isreal); % ml per minute
 
       p.parse(varargin{:});
 
@@ -148,14 +148,14 @@ classdef newera < marmoview.liquid
       o.dev = serial(o.port,'BaudRate',o.baud,'DataBits',8,'Parity','none', ...
                             'StopBits',1,'Terminator',13,'InputBufferSize',4096); % CR = 13
 
-      try,
-        [err,status] = o.open();
-      catch,
+      try
+        [err, status] = o.open();
+      catch
         error('MARMOVIEW:NEWERA','Could not connect to New Era syringe pump on %s!',o.port);
       end
 
       % configure the pump...
-      if status ~= 0, % 0 = stopped
+      if status ~= 0 % 0 = stopped
         o.stop();
       end
 
@@ -168,7 +168,7 @@ classdef newera < marmoview.liquid
 %       o.clrvol(1);
     end
 
-    function [err,status] = open(o),
+    function [err,status] = open(o)
         
       if (strcmp(o.dev.status,'closed'))  
         fopen(o.dev);
@@ -183,25 +183,25 @@ classdef newera < marmoview.liquid
       assert(err == 0);
     end
 
-    function close(o),
+    function close(o)
       [~,status,~] = o.sndcmd(''); % send a CR... no command
 
-      if status ~= 0, % 0 = stopped
+      if status ~= 0 % 0 = stopped
         o.stop(); % stop the pump...
       end
       
       fclose(o.dev);
     end
 
-    function delete(o),
-      try,
+    function delete(o)
+      try
         o.close(); % fails if o.dev is invalid or is already closed
       catch
       end
       delete(o.dev);
     end
     
-    function err = deliver(o,varargin),
+    function err = deliver(o,varargin)
 %       fprintf(1,'marmoview.newera.deliver()\n');
 
       % too slow, this calls the sndcmd() method which involves both a
@@ -217,57 +217,57 @@ classdef newera < marmoview.liquid
       fprintf(o.dev,'00 RUN');
     end
 
-    function r = report(o),
+    function r = report(o)
 %       fprintf(1,'marmoview.newera.report()\n');
       r.totalVolume = o.qryvol();
     end
   end % methods
 
   methods (Access = private)
-    function err = setdia(o,d), % set syringe diameter
+    function err = setdia(o,d) % set syringe diameter
       err = o.sndcmd(sprintf('DIA %5g',d));
     end
 
-    function err = setvol(o,d), % set dispensing volume
+    function err = setvol(o,d) % set dispensing volume
       err = o.sndcmd(sprintf('VOL %5g',d));
     end
 
-    function err = setrate(o,d), % set dispensing rate
+    function err = setrate(o,d) % set dispensing rate
       err = o.sndcmd(sprintf('RAT I %5g MM',d)); % 'I' set rate for infusion ONLY!
     end
 
-    function err = setdir(o,d), % set pump direction
-      switch d,
-        case 0, % infuse
+    function err = setdir(o,d) % set pump direction
+      switch d
+        case 0 % infuse
           err = o.sndcmd('DIR INF');
 %         case 1, % withdraw
 %           err = o.sndcmd('DIR WDR');
-        otherwise,
+          otherwise
           warning('MARMOVIEW:NEWERA','Invalid pump direction %i.',d);
       end
     end
     
-    function err = run(o), % start the pump
+    function err = run(o) % start the pump
       err = o.sndcmd('RUN');
     end
     
-    function err = stop(o), % stop the pump
+    function err = stop(o) % stop the pump
       err = o.sndcmd('STP');
     end   
     
-    function err = clrvol(o,d), % clear dispensed/withdrawn volume
-      switch d,
-        case 0, % clear infused volume
+    function err = clrvol(o,d) % clear dispensed/withdrawn volume
+      switch d
+        case 0 % clear infused volume
           err = o.sndcmd('CLD INF');
-        case 1, % clear withdrawn volume
+        case 1 % clear withdrawn volume
           err = o.sndcmd('CLD WDR');
-        otherwise,
+          otherwise
           warning('MARMOVIEW:NEWERA','Invalid pump direction %i.', d);
       end
     end
     
-    function [infu,wdrn] = qryvol(o), % query dispensed/withdrawn volume
-      [err,status,msg] = o.sndcmd('DIS');
+    function [infu,wdrn] = qryvol(o) % query dispensed/withdrawn volume
+      [err,~,msg] = o.sndcmd('DIS');
       assert(err == 0);
 
       % note: pump responds with [I <float> W <float> <volume units>] where
@@ -280,26 +280,26 @@ classdef newera < marmoview.liquid
       % note: infu and wdrn should be returned in ml, however, if
       %       diameter <= 14.0mm, the pump returns the volumes in
       %       microliters (unless the default units have been over-ridden).
-      switch upper(tokens.units),
-        case 'ML', % milliliters
+      switch upper(tokens.units)
+        case 'ML' % milliliters
           infu = str2num(tokens.infu);
           wdrn = str2num(tokens.wdrn);
-        case 'UL', % microliters
+        case 'UL' % microliters
           infu = str2num(tokens.infu)/1e3; % milliliters
           wdrn = str2num(tokens.wdrn)/1e3;
-        otherwise,
+          otherwise
           warning('MARMOVIEW:NEWERA','Unknown volume units ''%s''.', units);
       end
     end
     
-    function err = beep(o,n), % sound the buzzer
-      if nargin < 2,
+    function err = beep(o,n) % sound the buzzer
+      if nargin < 2
         n = 1;
       end
       err = o.sndcmd(sprintf('BUZ 1 %i',n));
     end
     
-    function [err,status,msg] = sndcmd(o,cmd), % send command to the pump
+    function [err,status,msg] = sndcmd(o,cmd) % send command to the pump
       % note: the deliver() method above performs an asynchronous write
       %       operation and doesn't wait around to read the response from
       %       the pump. The pump response(s) therefore remain in the input
@@ -311,7 +311,7 @@ classdef newera < marmoview.liquid
       cmd_ = sprintf('%02i %s',o.address,cmd);
       fprintf(o.dev,cmd_); %pause(0.100);
       
-      if nargout < 1;
+      if nargout < 1
         return
       end
 
@@ -354,32 +354,32 @@ classdef newera < marmoview.liquid
       tokens = regexp(msg,pat,'names');
       
       err = 0;
-      if any(tokens.msg == '?'), % test for error
+      if any(tokens.msg == '?') % test for error
         err = 1;
       end
 
       status = -1;
-      switch tokens.prmpt,
-        case 'S', % stopped
+      switch tokens.prmpt
+        case 'S' % stopped
           status = 0;
-        case 'I', % infusing
+        case 'I' % infusing
           status = 1;
-        case 'P', % paused
+        case 'P' % paused
           status = 3;
-        case 'A', % alarm, msg contains the alarm code
+        case 'A' % alarm, msg contains the alarm code
           warning('MARMOVIEW:NEWERA','Pump alarm code: %s!\nCheck diameter, rate and volume...',tokens.msg);
           o.sndcmd('AL0'); % clear the alarm?
           status = 4;
-        otherwise,
+        otherwise
           warning('MARMOVIEW:NEWERA','Unknown prompt ''%s'' returned by the New Era syringe pump.',tokens.prmpt);
       end
 
       msg = tokens.msg;
     end
     
-    function flushin(o),
+    function flushin(o)
       % read and discard the contents of the serial port input buffer...
-      while o.dev.BytesAvailable > 0,
+      while o.dev.BytesAvailable > 0
         fread(o.dev,o.dev.BytesAvailable);
         pause(0.050); % <-- urgh!
       end

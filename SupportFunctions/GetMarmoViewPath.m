@@ -1,6 +1,15 @@
-function fPath = GetMarmoViewPath()
-%GETMARMOVIEWPATH Summary of this function goes here
-%   Detailed explanation goes here
+function fPath = getMarmoViewPath()
+% GETMARMOVIEWPATH
+%
+% Description:
+%   Returns full path of MarmoView directory, assuming SupportFunctions loc
+%
+% Syntax:
+%   fPath = getMarmoViewPath()
+%
+% History
+%   06/02/2026 - SSP
+
     fPath = fileparts(fileparts(mfilename("fullpath")));
 end
 

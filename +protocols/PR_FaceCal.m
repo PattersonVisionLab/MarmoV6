@@ -4,7 +4,7 @@ classdef PR_FaceCal < handle
   % The class constructor can be called with a range of arguments:
   %
   
-  properties (Access = public),    
+  properties (Access = public)    
        Iti = 1;        % default Iti duration
        startTime = 0;  % trial start time
        faceOff = 0;    % trial face offset time
@@ -34,20 +34,21 @@ classdef PR_FaceCal < handle
         state = o.state;
     end
     
-    function initFunc(o,S,P);
-        o.Faces = stimuli.gaussimages(o.winPtr,'bkgd',S.bgColour,'gray',false);   % color images
-        o.Faces.loadimages('./SupportData/MarmosetFaceLibrary.mat');
+    function initFunc(o, S, P)
+        o.Faces = stimuli.gaussimages(o.winPtr, 'bkgd', S.bgColour, 'gray', false);   % color images
+        marmoPath = getMarmoViewPath();
+        o.Faces.loadimages(fullfile(marmoPath, 'SupportData/MarmosetFaceLibrary.mat'));
     end
    
-    function closeFunc(o),
+    function closeFunc(o)
         o.Faces.CloseUp();
     end
    
-    function generate_trialsList(o,S,P)
+    function generate_trialsList(o, S, P)
            % nothing for this protocol
     end
     
-    function P = next_trial(o,S,P);
+    function P = next_trial(o, S, P)
           %********************
           o.S = S;
           o.P = P;       
@@ -129,7 +130,7 @@ classdef PR_FaceCal < handle
         Iti = o.Iti;  % returns generic Iti interval (not task dep)
     end
     
-    function plot_trace(o,handles)
+    function plot_trace(o, handles)
         %********* append other things eye trace plots if you desire
         h = handles.EyeTrace;
         faceConfig = o.S.faceConfigs{o.P.faceConfig};

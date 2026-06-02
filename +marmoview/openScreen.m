@@ -33,3 +33,9 @@ A.priorityLevel = MaxPriority(A.window);
 
 % set alpha blending/antialiasing etc.
 Screen(A.window,'BlendFunction',GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+if isfield(S, 'DataPixx') && S.DataPixx 
+    if Datapixx('IsViewPixx')
+        Datapixx('Open');
+    end
+end
