@@ -96,7 +96,8 @@ classdef FrameControl < handle
         o.c = C.c;
         o.dx = C.dx;
         o.dy = C.dy;
-        o.rot = C.rot;
+        o.rot = 0;
+        %o.rot = C.rot;
         %**************
         o.frameRate = S.frameRate;
         o.centerPix = S.centerPix;
@@ -257,7 +258,8 @@ classdef FrameControl < handle
           o.c = c;
           o.dx = dx;
           o.dy = dy;
-          o.rot = rot;
+          o.rot = 0;
+          %o.rot = rot;
     end
     
     function CL = last_screen_flip(o)
@@ -285,7 +287,7 @@ classdef FrameControl < handle
         dx = handles.A.dx;
         dy = handles.A.dy;
         c = handles.A.c;
-        rot = handles.A.rot;
+        %rot = handles.A.rot;
         ppd = handles.S.pixPerDeg;
         eyeRad = handles.eyeTraceRadius;
         
@@ -300,14 +302,14 @@ classdef FrameControl < handle
             ind = 1:o.FCount;  %any reasonable states
             x = (o.FData(ind,2)-c(1)) / (dx*ppd);
             y = (o.FData(ind,3)-c(2)) / (dy*ppd);
-            [x,y] = o.rotatecore(x,y,rot);
+            %[x,y] = o.rotatecore(x,y,rot);
             plot(h,x,y,'b.');          
           else
             for k = 1:length(o.FP)
               ind = ismember(o.FData(:,5),o.FP(k).states);
               x = (o.FData(ind,2)-c(1)) / (dx*ppd);
               y = (o.FData(ind,3)-c(2)) / (dy*ppd);
-              [x,y] = o.rotatecore(x,y,rot);
+              %[x,y] = o.rotatecore(x,y,rot);
               plot(h,x,y,[o.FP(k).col,'.']);
             end
           end

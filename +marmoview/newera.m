@@ -123,7 +123,7 @@ classdef newera < marmoview.liquid
       p = inputParser;
       p.KeepUnmatched = true;
       p.StructExpand = true;
-      p.addParamValue('port','COM1',@ischar); % default to COM1?
+      p.addParamValue('port','COM4',@ischar); % default to COM4!
       p.addParamValue('baud',19200,@(x) any(ismember(x,[300, 1200, 2400, 9600, 19200])));
 
       p.addParamValue('address',0,@(x) isreal);

@@ -34,6 +34,7 @@ function varargout = MarmoV5(varargin)
 % Added the next two lines to allow the automatic start up.-GB
 %addpath(genpath('C:/toolbox'));
 %addpath(genpath('C:/Users/riguser/marmov5/Current Version/'));
+%PsychStartup() %added by AB for Patterson Rig
 % MUST be changed if the location of marmov5 changes. -GB
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
@@ -177,6 +178,15 @@ handles.A.juiceCounter = 0;
 %******* and then Arrington wrapper by Jude ******
 if handles.S.arrington, % create an @arrington eyetrack object for eye position
   handles.eyetrack = marmoview.eyetrack_arrington(hObject,'EyeDump',S.EyeDump);
+else, % no eyetrack, use @eyetrack object instead that uses mouse pointer
+  handles.eyetrack = marmoview.eyetrack();
+end
+%********************************************************
+
+%******** ADDED VIA AMY ************************
+%******* TrackPixx Wrapper 
+if handles.S.trackpixx, % create an @trackPixx eyetrack object for eye position
+  handles.eyetrack = marmoview.eyetrack_trackpixx(hObject,'EyeDump',S.EyeDump);
 else, % no eyetrack, use @eyetrack object instead that uses mouse pointer
   handles.eyetrack = marmoview.eyetrack();
 end
@@ -1352,7 +1362,7 @@ function EnableEyeCalibration(handles,state)
   set(handles.GainDownX,'Enable',state);
   set(handles.ShiftSize,'Enable',state);
   set(handles.GainSize,'Enable',state);
-  set(handles.ResetCalibration,'Enable',state);
+ % set(handles.ResetCalibration,'Enable',state);
   set(handles.GraphZoomIn,'Enable',state);
   set(handles.GraphZoomOut,'Enable',state);
   

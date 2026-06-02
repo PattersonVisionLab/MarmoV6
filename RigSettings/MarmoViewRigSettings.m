@@ -15,11 +15,12 @@ function S = MarmoViewRigSettings
 % For example, if you change the monitor set up, you only change those
 % monitor related variables here.
 
-onrig = 0;
+onrig = 1;
 if (onrig)
     S.newera = true;         % use Newera juice pump
     S.arrington = false;      % use Arrington eye tracker
-    S.eyelink = true;        % use Eyelink eye tracker
+    S.eyelink = false;        % use Eyelink eye tracker
+    S.trackpixx = true;     % use TrackPixx eye tracker
     S.DummyEye = false;       % use mouse instead of eye tracker
     S.solenoid = false;      % use solenoid juice delivery
     S.DummyScreen = false;   % don't use a Dummy Display
@@ -29,6 +30,7 @@ else
     S.newera = true;
     S.solenoid = false;
     S.arrington = false;
+    S.trackpixx = false;     
     S.eyelink = false;
     S.DummyEye = true;
     S.DummyScreen = true;
@@ -63,11 +65,13 @@ if S.DummyScreen
 else    
     
    S.monitor = 'BenQ-XL2411Z';         % Monitor used for display window
-   S.screenNumber = 2;                 % Designates the display for task stimuli
+   S.screenNumber = 1;                 % Designates the display for task stimuli
    S.frameRate = 100; % 120;           % Frame rate of screen in Hz
    S.screenRect = [0 0 1920 1080];     % Screen dimensions in pixels
+   %S.screenRect = [0 0 2560 1440];     % Screen dimensions in pixels
    S.screenWidth = 53;                 % Width of screen (cm)
    S.centerPix =  [960 540];           % Pixels of center of the screen
+   % S.centerPix =  [1280 720];           % Pixels of center of the screen
    S.guiLocation = [800 100 890 660];
    S.bgColour = 127; %186;  % use 127 if gamma corrected
 

@@ -16,7 +16,7 @@ Datapixx('SetTPxAwake');
 Datapixx('SetExpectedIrisSizeInPixels', 115)
 Datapixx('RegWrRd');
 image = Datapixx('GetEyeImage');
-[windowPtr, windowRect]=PsychImaging('OpenWindow', 2, 0);
+[windowPtr, windowRect]=PsychImaging('OpenWindow', 0, 0);
 KbName('UnifyKeyNames');
 t = Datapixx('GetTime');
 t2 = Datapixx('GetTime');

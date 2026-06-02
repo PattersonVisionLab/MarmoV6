@@ -1,9 +1,8 @@
 function varargout = MarmoV6(varargin)
 % MARMOV6 M-file for MarmoV6.fig
-% UPDATED 8/19/24 (from MarmoV5, to include eye rotation)
-% code which appears to have a problem in this rig
+% UPDATED 10/16/2025(from MarmoV6, to include TrackPixx Recording Option)
 %
-%      THIS IS MARMOV6 VERSION 1B, THIS CORRESPONDS TO THE VERSION TEXT
+%      THIS IS MARMOV6 VERSION 1C, THIS CORRESPONDS TO THE VERSION TEXT
 %      IN THE MarmoV6.fig FILE
 %
 %      MARMOV6, by itself, creates a new MARMOV6 or raises the existing
@@ -34,6 +33,7 @@ function varargout = MarmoV6(varargin)
 % Added the next two lines to allow the automatic start up.-GB
 %addpath(genpath('C:/toolbox'));
 %addpath(genpath('C:/Users/riguser/marmov6/Current Version/'));
+%PsychStartup() %added by AB for Patterson Rig
 % MUST be changed if the location of marmov6 changes. -GB
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
@@ -183,12 +183,24 @@ else, % no eyetrack, use @eyetrack object instead that uses mouse pointer
 end
 %********************************************************
 
+%******** ADDED VIA AMY ************************
+%******* TrackPixx Wrapper 
+if handles.S.trackpixx, % create an @trackPixx eyetrack object for eye position
+  handles.eyetrack = marmoview.eyetrack_trackpixx(hObject,'EyeDump',S.EyeDump);
+else, % no eyetrack, use @eyetrack object instead that uses mouse pointer
+  handles.eyetrack = marmoview.eyetrack();
+end
+%********************************************************
+
+
+
 %********* add the task controller for storing eye movements, flipping
 %********* frames
 % WRITE THE CALIBRATION DATA INTO THE EYE TRACKER PANEL AND GET THE SIZES 
 % OF GAIN AND SHIFT CONTROLS FOR CALIBRATING EYE POSITION
 % FOR UPDATE EYE TEXT TO RUN PROPPERLY, CALBIRATION MUST ALREADY BE IN
 % STRUCTURE 'A'
+handles.A
 UpdateEyeText(handles);
 handles.shiftSize = str2double(get(handles.ShiftSize,'String'));
 handles.gainSize = str2double(get(handles.GainSize,'String'));
