@@ -12,7 +12,7 @@ classdef eyetrack_arrington < handle
   end
   
   methods
-    function o = eyetrack_arrington(h,varargin), % h is the handle for the marmoview gui
+    function o = eyetrack_arrington(h,varargin) % h is the handle for the marmoview gui
 
       % initialise input parser
       args = varargin;
@@ -32,7 +32,7 @@ classdef eyetrack_arrington < handle
       end
     end
 
-    function startfile(o,handles),   
+    function startfile(o,handles)   
         if o.EyeDump
           eyeFile = sprintf('%s_%s_%s_%s.vpx', ...
                             handles.outputPrefix, ...
@@ -40,36 +40,36 @@ classdef eyetrack_arrington < handle
                             handles.outputDate, ...
                             handles.outputSuffix);
 
-          fname = fullfile(handles.outputPath,eyeFile);
+          fname = fullfile(handles.outputPath, eyeFile);
           vpx_SendCommandString(sprintf('dataFile_NewName "%s"',fname));
           vpx_SendCommandString('dataFile_Pause Yes'); % pause
         end
     end
 
-    function closefile(o),        
+    function closefile(o)        
         if o.EyeDump 
           vpx_SendCommandString('dataFile_Close');
         end
     end
 
-    function unpause(o),    
+    function unpause(o)    
         if o.EyeDump
          vpx_SendCommandString('dataFile_Pause No');
         end
     end
 
-    function pause(o),    
+    function pause(o)    
         if o.EyeDump
          vpx_SendCommandString('dataFile_Pause Yes');
         end
     end
 
-    function [x,y] = getgaze(o),
+    function [x,y] = getgaze(o)
         [x,y] = vpx_GetGazePoint;
         y = 1 - y; % NEED TO INVERT SO ++ IS UP
     end
     
-    function r = getpupil(o),
+    function r = getpupil(o)
         r = vpx_GetPupilSize;
     end
     

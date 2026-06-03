@@ -28,9 +28,9 @@ classdef eyetrack_trackpixx < handle
 
             args = varargin;
             p = inputParser;
-            p.addParamValue('EyeDump',true,@islogical); % default 1, do EyeDump
-            p.addParamValue( 'LedIntensity', 8, @isnumeric);
-            p.addParamValue( 'SetExpectedIrisSizeInPixels', 115, @isnumeric);
+            p.addParameter('EyeDump',true,@islogical); % default 1, do EyeDump
+            p.addParameter( 'LedIntensity', 8, @isnumeric);
+            p.addParameter( 'SetExpectedIrisSizeInPixels', 115, @isnumeric);
             p.parse(varargin{:});
             args = p.Results;
 
