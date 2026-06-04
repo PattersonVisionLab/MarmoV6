@@ -1,41 +1,46 @@
 function A=openScreen(S,A)
-% OPENSCREEN Opens PTB window with parameters specified in S
+    % OPENSCREEN Opens PTB window with parameters specified in S
 
-% disable ptb welcome screen
-Screen('Preference','VisualDebuglevel',3);
+    PsychStartup();
 
-% close any open windows
-Screen('CloseAll');
-PsychDefaultSetup(0);
+    % disable ptb welcome screen
+    Screen('Preference','VisualDebuglevel',3);
 
-% setup the image processing pipeline for ptb
-PsychImaging('PrepareConfiguration');
+    % close any open windows
+    Screen('CloseAll');
+    PsychDefaultSetup(0);
 
-PsychImaging('AddTask','General','FloatingPoint16Bit');
-%PsychImaging('AddTask','General','FloatingPoint32BitIfPossible');
+    % setup the image processing pipeline for ptb
+    PsychImaging('PrepareConfiguration');
 
-% Applies a simple power-law gamma correction
-PsychImaging('AddTask','FinalFormatting','DisplayColorCorrection','SimpleGamma');
+    PsychImaging('AddTask','General','FloatingPoint16Bit');
+    %PsychImaging('AddTask','General','FloatingPoint32BitIfPossible');
 
-% create the ptb window...
-if isfield(S,'DummyScreen') && S.DummyScreen
-  [A.window A.screenRect] = PsychImaging('OpenWindow',0,S.bgColour,S.screenRect);
-else    
-  [A.window A.screenRect] = PsychImaging('OpenWindow',S.screenNumber,S.bgColour);
-  % Add gamma correction
-  PsychColorCorrection('SetEncodingGamma',A.window,1/S.gamma);
-end
+    % Applies a simple power-law gamma correction
+    PsychImaging('AddTask','FinalFormatting','DisplayColorCorrection','SimpleGamma');
 
-A.frameRate = FrameRate(A.window);
-
-% bump ptb to maximum priority
-A.priorityLevel = MaxPriority(A.window);
-
-% set alpha blending/antialiasing etc.
-Screen(A.window,'BlendFunction',GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-if isfield(S, 'DataPixx') && S.DataPixx 
-    if Datapixx('IsViewPixx')
-        Datapixx('Open');
+    % create the ptb window...
+    if isfield(S,'DummyScreen') && S.DummyScreen
+      [A.window, A.screenRect] = PsychImaging('OpenWindow',...
+          0, S.bgColour, S.screenRect);
+    else    
+      [A.window, A.screenRect] = PsychImaging('OpenWindow',...
+          S.screenNumber, S.bgColour);
+      % Add gamma correction
+      PsychColorCorrection('SetEncodingGamma', A.window, 1/S.gamma);
     end
-end
+
+    A.frameRate = FrameRate(A.window);
+
+    % bump ptb to maximum priority
+    A.priorityLevel = MaxPriority(A.window);
+
+    % set alpha blending/antialiasing etc.
+    Screen(A.window, 'BlendFunction',GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    if isfield(S, 'DataPixx') && S.DataPixx 
+        if Datapixx('IsViewPixx')
+            Datapixx('Open');
+            cprintf('*[1,0.25,0.25]', '\topenScreen, Opened datapixx');
+        end
+    end

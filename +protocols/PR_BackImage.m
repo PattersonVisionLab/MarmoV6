@@ -26,24 +26,24 @@ classdef PR_BackImage < handle
   end
   
   methods (Access = public)
-    function o = PR_BackImage(winPtr)
-      o.winPtr = winPtr;     
+    function obj = PR_BackImage(winPtr)
+      obj.winPtr = winPtr;     
     end
     
     function state = get_state(o)
         state = o.state;
     end
     
-    function initFunc(o,S,P);
-        o.ImoScreen = [];
-        o.ImageDirectory = S.ImageDirectory;  
+    function initFunc(obj, S, P)
+        obj.ImoScreen = [];
+        obj.ImageDirectory = S.ImageDirectory;  
     end
    
     function load_image_dir(o,imagedir)
         o.ImageDirectory = imagedir;
     end
     
-    function closeFunc(o),
+    function closeFunc(o)
         if (~isempty(o.ImoScreen))
             Screen('Close',o.ImoScreen);
             o.ImoScreen = [];
@@ -54,35 +54,35 @@ classdef PR_BackImage < handle
         end     
     end
    
-    function generate_trialsList(o,S,P)
+    function generate_trialsList(obj, S, P)
            % nothing for this protocol
     end
     
-    function P = next_trial(o,S,P);
+    function P = next_trial(obj,S,P)
           %********************
-          o.S = S;
-          o.P = P;       
+          obj.S = S;
+          obj.P = P;       
           %*******************
-          flist = dir([o.ImageDirectory,filesep,'*.jpg']);
-          o.closeFunc();  % clear any remaining images in memory
+          flist = dir([obj.ImageDirectory,filesep,'*.jpg']);
+          obj.closeFunc();  % clear any remaining images in memory
                           % before you allocated more (one per time)
           %******************
           if (~isempty(flist))
              fimo = 1 + floor( (rand * 0.99) * size(flist,1) );
              fname = flist(fimo).name;  % name of an image
-             o.ImageFile = [o.ImageDirectory,filesep,fname];
-             o.imo = imread(o.ImageFile);
+             obj.ImageFile = [obj.ImageDirectory,filesep,fname];
+             obj.imo = imread(obj.ImageFile);
              %******* insert image in middle texture
-             o.ImoScreen = Screen('MakeTexture',o.winPtr,o.imo);
-             o.ImoRect = [0 0 size(o.imo,2) size(o.imo,1)];
-             o.ScreenRect = S.screenRect;
+             obj.ImoScreen = Screen('MakeTexture', obj.winPtr, obj.imo);
+             obj.ImoRect = [0 0 size(obj.imo,2) size(obj.imo,1)];
+             obj.ScreenRect = S.screenRect;
           end      
     end
     
-    function [FP,TS] = prep_run_trial(o)
+    function [FP,TS] = prep_run_trial(obj)
         % Setup the state
-        o.state = 0; % Showing the face
-        Iti = o.P.iti;   % set ITI interval from P struct stored in trial
+        obj.state = 0; % Showing the face
+        Iti = obj.P.iti;   % set ITI interval from P struct stored in trial
         %*******
         FP(1).states = 0;  % any special plotting of states, 
         FP(1).col = 'b';   % FP(1).states = 1:2; FP(1).col = 'b';
@@ -90,30 +90,30 @@ classdef PR_BackImage < handle
         %******* set which states are TimeSensitive, if [] then none
         TS = [];  % no sensitive states in FaceCal
         %********
-        o.startTime = GetSecs;
+        obj.startTime = GetSecs;
     end
     
-    function keepgoing = continue_run_trial(o,screenTime)
+    function keepgoing = continue_run_trial(obj, screenTime)
         keepgoing = 0;
-        if (o.state < 1)
+        if (obj.state < 1)
             keepgoing = 1;
         end
     end
    
     %******************** THIS IS THE BIG FUNCTION *************
-    function drop = state_and_screen_update(o,currentTime,x,y) 
+    function drop = state_and_screen_update(obj,currentTime,x,y) 
         drop = 0;
         %******* THIS PART CHANGES WITH EACH PROTOCOL ****************
-        if o.state == 0 && currentTime > o.startTime + o.P.imageDur
-            o.state = 1; % Inter trial interval
-            o.imageOff = GetSecs;
+        if obj.state == 0 && currentTime > obj.startTime + obj.P.imageDur
+            obj.state = 1; % Inter trial interval
+            obj.imageOff = GetSecs;
             drop = 1; 
         end
         % GET THE DISPLAY READY FOR THE NEXT FLIP
         % STATE SPECIFIC DRAWS
-        switch o.state
+        switch obj.state
            case 0
-            Screen('DrawTextures',o.winPtr,o.ImoScreen,o.ImoRect,o.ScreenRect)  
+            Screen('DrawTextures',obj.winPtr,obj.ImoScreen,obj.ImoRect,obj.ScreenRect)  
         end 
         %**************************************************************
     end

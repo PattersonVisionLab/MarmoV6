@@ -569,6 +569,7 @@ guidata(hObject, handles);
 function RunTrial_Callback(hObject, eventdata, handles)
 % SET THE TASK TO RUN
 handles.runTask = true;
+assignin('base', 'handles', handles);
 
 %********* store what is the current EyeTrace to plot, based on 
 %********* what protocol is most recently called (image or other)

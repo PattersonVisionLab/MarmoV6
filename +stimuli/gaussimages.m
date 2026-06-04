@@ -1,145 +1,142 @@
 classdef gaussimages < handle
-  % Matlab class for drawing an image (typically a face) in a Gauss window
-  %
-  % The class constructor can be called with file name that is a .mat of images
-  %  and what is the background gray scale (for Gauss windowing of image)
-  %
-  %   bkgd  - background gray
-  %   gray  - true if gray only, else full color
-  %
-  % 26-08-2018 - Jude Mitchell
-  
-  properties (Access = public),
-    tex;
-    texDim;  
-    imagenum = 0;   %if set zeros, picks at random which to show
-    position = [0.0, 0.0]; % [x,y] (pixels)
-    radius = 1;  % size in pixels, must be set
-    bkgd  = 127;
-    gray = true;
-    transparency  = 0.5;
-    contrast  = 1;
-  end
+    % Matlab class for drawing an image (typically a face) in a Gauss window
+    %
+    % The class constructor can be called with file name that is a .mat of images
+    %  and what is the background gray scale (for Gauss windowing of image)
+    %
+    %   bkgd  - background gray
+    %   gray  - true if gray only, else full color
+    %
+    % 26-08-2018 - Jude Mitchell
+    
+    % TODO - figure out why transparency is set to bkgd
+    
+    properties
+        tex;
+        texDim;
+        imagenum = 0;   %if set zeros, picks at random which to show
+        position = [0.0, 0.0]; % [x,y] (pixels)
+        radius = 1;  % size in pixels, must be set
+        bkgd  = 127;
+        gray = true;
+        transparency  = 0.5;
+        contrast  = 1;
+    end
+    
+    properties (Access = private)
+        winPtr; % ptb window
+    end
+    
+    methods
+        function obj = gaussimages(winPtr, varargin) 
+            obj.winPtr = winPtr;
+            obj.tex = [];
+            obj.texDim = [];
+            
+            if nargin == 1
+                return
+            end
+            
+            % initialise input parser
+            ip = inputParser;
+            ip.CaseSensitive = false;
+            ip.StructExpand = true;
+            
+            ip.addParameter('Position', obj.position, @isfloat);
+            ip.addParameter('Radius', obj.radius, @isfloat);
+            ip.addParameter('Gray', obj.gray, @islogical);
+            ip.addParameter('Bkgd', obj.bkgd, @isfloat);
+            ip.addParameter('Imagenum', obj.imagenum, @isfloat);
+            ip.addParameter('transparency', obj.transparency, @isfloat);
+            
+            try
+                ip.parse(varargin{:});
+            catch ME
+                warning(ME.identifier, '%', ME.message);
+                return;
+            end
+            
+            obj.position = ip.Results.Position;
+            obj.radius = ip.Results.Radius;
+            obj.gray = ip.Results.Gray;
+            obj.bkgd = ip.Results.Bkgd;
+            obj.transparency = ip.Results.Bkgd;
+        end
         
-  properties (Access = private)
-    winPtr; % ptb window
-  end
-  
-  methods (Access = public)
-    function o = gaussimages(winPtr,varargin) % marmoview's initCmd?
-      o.winPtr = winPtr;
-      o.tex = [];
-      o.texDim = [];
-      
-      if nargin == 1,
-        return
-      end
-
-      % initialise input parser
-      args = varargin;
-      p = inputParser;
-      p.StructExpand = true;
-      
-      p.addParameter('position',o.position,@isfloat); % [x,y] (pixels)
-      p.addParameter('radius',o.radius,@isfloat); % [x,y] (pixels)
-      p.addParameter('gray',o.gray,@islogical);
-      p.addParameter('bkgd',o.bkgd,@isfloat);
-      p.addParameter('imagenum',o.imagenum,@isfloat);
-      p.addParameter('transparency',o.transparency,@isfloat);
-                  
-      try
-        p.parse(args{:});
-      catch
-        warning('Failed to parse name-value arguments.');
-        return;
-      end
-      
-      args = p.Results;
-    
-      o.position = args.position;
-      o.radius = args.radius;
-      o.gray = args.gray;
-      o.bkgd = args.bkgd;
-      o.transparency = args.bkgd;
-     
-    end
-    
-    function o = loadimages(o,filename)
+        function obj = loadimages(obj, fName)
+            
+            F = load(fName);
+            images = fields(F);
+            n = length(images);
+            obj.tex = nan(n,1);
+            obj.texDim = nan(n,1);
+            for i = 1:n
+                imo = F.(images{i});
+                obj.texDim(i) = length(imo);
+                [x,y] = meshgrid((1:obj.texDim(i))-obj.texDim(i)/2);
+                g = exp(-(x.^2+y.^2)/(2*(obj.texDim(i)/6)^2));
+                g = repmat(g,[1 1 3]);
+                im = uint8((g.*double(imo)) + obj.bkgd*(1-g));
+                if (obj.gray)
+                    im = uint8(squeeze(mean(im,3)));  % go to grayscale
+                end
+                
+                % then define transparency for g-blending
+                if (obj.transparency > 0)
+                    t1 = 255 * (squeeze(mean(g,3)) > 0.05);
+                else
+                    t1 = 255 * squeeze(mean(g,3));
+                end
+                rim = uint8( zeros(size(im,1),size(im,2),4) );
+                rim(:,:,1) = im(:,:,1);
+                rim(:,:,2) = im(:,:,2);
+                rim(:,:,3) = im(:,:,3);
+                %**** set transparency
+                rim(:,:,4) = uint8(t1);
+                % Create the gauss texture
+                obj.tex(i) = Screen('MakeTexture', obj.winPtr, rim);
+                
+                %**** initialize default radius based on last loaded image size
+                obj.radius = length(imo);
+            end
+        end
         
-       F = load(filename);
-       images = fields(F);
-       n = length(images);
-       o.tex = nan(n,1);
-       o.texDim = nan(n,1);
-       for i = 1:n
-          imo = F.(images{i});
-          o.texDim(i) = length(imo);  
-          [x,y] = meshgrid((1:o.texDim(i))-o.texDim(i)/2);
-          g = exp(-(x.^2+y.^2)/(2*(o.texDim(i)/6)^2));
-          g = repmat(g,[1 1 3]);
-          im = uint8((g.*double(imo)) + o.bkgd*(1-g));  % Should be 127 if gamma, 186 if not
-          if (o.gray)
-             im = uint8(squeeze(mean(im,3)));  % go to grayscale 
-          end
-          % o.tex(i) = Screen('MakeTexture',o.winPtr,im);
-          
-          % then define transparency for g-blending
-          if (o.transparency > 0)
-             t1 = 255 * (squeeze(mean(g,3)) > 0.05); 
-          else
-             t1 = 255 * squeeze(mean(g,3)); 
-          end
-          rim = uint8( zeros(size(im,1),size(im,2),4) );
-          rim(:,:,1) = im(:,:,1);
-          rim(:,:,2) = im(:,:,2);
-          rim(:,:,3) = im(:,:,3);
-          %**** set transparency
-          rim(:,:,4) = uint8(t1);
-          % Create the gauss texture 
-          o.tex(i) = Screen('MakeTexture',o.winPtr,rim);
-          
-          %**** initialize default radius based on last loaded image size
-          o.radius = length(imo);
-       end        
-    end
-    
-    function CloseUp(o)
-       if ~isempty(o.tex)
-          for i = 1:size(o.tex,1) 
-            Screen('Close',o.tex(i)); 
-          end
-          o.tex = [];
-       end
-    end
+        function CloseUp(obj)
+            if ~isempty(obj.tex)
+                for i = 1:size(obj.tex,1)
+                    Screen('Close',obj.tex(i));
+                end
+                obj.tex = [];
+            end
+        end
         
-    function beforeTrial(o)
-    end
-    
-    function beforeFrame(o)
-      if (o.imagenum)
-          o.drawGaussImage(o.imagenum);
-      else
-          rd = randi(length(o.tex));  
-          o.drawGaussImage(rd);
-      end
-    end
+        function beforeTrial(~)
+        end
         
-    function afterFrame(o)
+        function beforeFrame(~)
+            if (o.imagenum)
+                o.drawGaussImage(o.imagenum);
+            else
+                rd = randi(length(o.tex));
+                o.drawGaussImage(rd);
+            end
+        end
+        
+        function afterFrame(~)
+        end
+        
+        function drawGaussImage(obj, imagenum)
+            if ( (imagenum>0) && (imagenum <= size(obj.tex,1)) )
+                if (~isempty(obj.tex(imagenum)))
+                    rect = kron([1,1],obj.position) + kron(obj.radius,[-1, -1, +1, +1]);
+                    texrect = [0 0 obj.texDim(imagenum) obj.texDim(imagenum)];
+                    if (obj.contrast > 0)
+                        % use transparency to change contrast
+                        Screen('DrawTexture',obj.winPtr,...
+                            obj.tex(imagenum), texrect, rect, 0, 0, obj.contrast);  
+                    end
+                end
+            end
+        end
     end
-    
-    function drawGaussImage(o,imagenum)
-       if ( (imagenum>0) && (imagenum <= size(o.tex,1)) ) 
-         if (~isempty(o.tex(imagenum)))
-           rect = kron([1,1],o.position) + kron(o.radius,[-1, -1, +1, +1]);
-           texrect = [0 0 o.texDim(imagenum) o.texDim(imagenum)];
-           if (o.contrast > 0)
-              Screen('DrawTexture',o.winPtr,o.tex(imagenum),texrect,rect,0,...
-                     0,o.contrast);  % use transparency to change contrast
-           end 
-         end
-       end
-    end
-    
-  end % methods
-  
-end % classdef
+end

@@ -1,14 +1,13 @@
 classdef eyetrack_trackpixx < handle
 
 
-    properties (SetAccess = private, GetAccess = public)
+    properties (SetAccess = private)
         % I put the default properties in Trackpixx demos, we will want to adjust
         ledIntensity        (1,1)   double
         expectedIrisSize    (1,1)   double
     end
 
-    % dependent properties, calculated on the fly...
-    properties (SetAccess = public, GetAccess = public)
+    properties
         EyeDump             (1,1)   logical
         % These were inputs to eyetrack_eyelink so we can instruct marmoview
         % to provide those same inputs to eyelink_trackpixx
@@ -17,28 +16,24 @@ classdef eyetrack_trackpixx < handle
     end
 
     methods
-        function o = eyetrack_trackpixx(h, eyeFile, eyePath, varargin) % h is the handle for the marmoview gui
+        function o = eyetrack_trackpixx(h, varargin) % h is the handle for the marmoview gui
 
             % initialise input parser
-            %ip = inputParser;
-            %addParameter(ip, 'LedIntensity', 8, @isnumeric);
-            %addParameter(ip, 'SetExpectedIrisSizeInPixels', 115, @isnumeric);
-            %addParameter(ip, 'EyeDump', true, @islogical); % default 1, do EyeDump
-            %parse(ip, varargin{:});
+            ip = inputParser();
+            ip.KeepUnmatched = true;
+            addParameter(ip, 'LedIntensity', 8, @isnumeric);
+            addParameter(ip, 'SetExpectedIrisSizeInPixels', 115, @isnumeric);
+            addParameter(ip, 'EyeDump', true, @islogical); % default 1, do EyeDump
+            parse(ip, varargin{:});
 
-            args = varargin;
-            p = inputParser;
             p.addParameter('EyeDump',true,@islogical); % default 1, do EyeDump
             p.addParameter( 'LedIntensity', 8, @isnumeric);
             p.addParameter( 'SetExpectedIrisSizeInPixels', 115, @isnumeric);
             p.parse(varargin{:});
-            args = p.Results;
 
-            o.EyeDump = args.EyeDump;
-            o.eyePath = eyePath;
-            o.eyeFile = eyeFile;
-            o.ledIntensity = 8;
-            o.expectedIrisSize = 115;
+            o.EyeDump = ip.Results.EyeDump;
+            o.ledIntensity = ip.Results.LedIntensity;
+            o.expectedIrisSize = ip.Results.expectedIrisSize;
 
             % Configure the tracker and initialize...
             Datapixx('Open');

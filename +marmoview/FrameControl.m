@@ -22,6 +22,9 @@ classdef FrameControl < handle
     %       6) It plots the eye position traces per trial and screen flip dT
     %       7) It writes out to a data file all of its information
     %                accumulated over a block of trials
+
+    % METHODS
+    % 
     
     properties (SetAccess = private)
         %******** psychtoolbox
@@ -34,12 +37,12 @@ classdef FrameControl < handle
         TimeSensitive;
 
         %******** storage within a single trial
-        FData;      % buffer to store within trial data
-        FCount;     % counter to store flips during trial
-        c;          % struct that holds eye calibration data, center
-        dx;         %   eye calib x scale
-        dy;         %   eye calib y scale
-        rot;        % eye rotation
+        FData       % buffer to store within trial data
+        FCount      % counter to store flips during trial
+        c = [0,0];  % struct that holds eye calibration data, center
+        dx = 1;     % eye calib x scale
+        dy = 1;     % eye calib y scale
+        rot = 0;    % eye rotation
         FMAX;       % Max screen flips in any trial
         FIELDS;     % Max number of fields to store in eye data
         eyeColor;   % for ShowEye of eye position tracker
@@ -58,6 +61,7 @@ classdef FrameControl < handle
     
     methods
         function obj = FrameControl()
+            cprintf('_Comments', 'FrameControl,constructor\n');
             % Defaults, call to initialize() will set up properly
             obj.winPtr = [];
             obj.PInit = struct();    
@@ -80,6 +84,8 @@ classdef FrameControl < handle
     methods (Access = public)
         
         function obj = initialize(obj, winPtr, P, C, S, varargin)
+            cprintf('_Comments', '\tFrameControl, call initialize\n');
+           
             % winPtr is the window point of psych display
             % P is the parameter struct defined by settings
             % C is the eye calibration struct
@@ -96,8 +102,7 @@ classdef FrameControl < handle
             obj.c = C.c;
             obj.dx = C.dx;
             obj.dy = C.dy;
-            obj.rot = 0;
-            %o.rot = C.rot;
+            obj.rot = C.rot;
             %**************
             obj.frameRate = S.frameRate;
             obj.centerPix = S.centerPix;
@@ -109,10 +114,10 @@ classdef FrameControl < handle
             p.KeepUnmatched = true;
             p.StructExpand = true;
             
-            p.addParameter('showEye',0,@isfloat);
-            p.addParameter('eyeIntensity',20,@isfloat); % default
-            p.addParameter('Bkgd',127,@isfloat);
-            p.addParameter('eyeRadius',2.0,@isfloat);
+            p.addParameter('showEye', 0, @isfloat);
+            p.addParameter('eyeIntensity', 20, @isfloat); % default
+            p.addParameter('Bkgd', 127, @isfloat);
+            p.addParameter('eyeRadius', 2.0, @isfloat);
             
             p.parse(varargin{:});
             
@@ -131,6 +136,7 @@ classdef FrameControl < handle
         
         function update_args_from_Pstruct(obj, P)
             % NOTE, these arguments could load from the Pinit as well
+            cprintf('_Comments', '\tFrameControl, call updateArgsFromPStruct\n');
             if (isfield(P, 'showEye'))
                 obj.showEye = P.('showEye');
             end
@@ -162,6 +168,7 @@ classdef FrameControl < handle
         end
         
         function [c,dx,dy,rot] = upload_C(obj)
+            cprintf('_Comments', '\tFrameControl, call uploadC\n');
             c = obj.c;
             dx = obj.dx;
             dy = obj.dy;
@@ -170,6 +177,7 @@ classdef FrameControl < handle
         
         %********* main routines below for the work during trials
         function CL = prep_run_trial(obj, eyepos, pupil)
+            cprintf('_Comments', '\tFrameControl, call prepRunTrial\n');
             obj.FData(:,:) = NaN;  % set all to NaN at start
             obj.FData(1:5,1) = GetSecs;  % column 1 timelock on eye pos
             obj.FCount = 5;   % flip counter, why at 5 though?
@@ -193,9 +201,9 @@ classdef FrameControl < handle
         end
         
         function [currentTime,x,y] = grabeye_run_trial(obj,state,eyepos,pupil)
-            currentTime = GetSecs;
+            cprintf('_Comments', '\tFrameControl, call prepRunTrial\n');
+            currentTime = GetSecs();
 
-            % GET EYE POSITION
             obj.FCount = obj.FCount + 1;
             k = obj.FCount;
             if (k <= obj.FMAX)  %drops data if over max
@@ -207,62 +215,66 @@ classdef FrameControl < handle
             else
                 disp('Over MAX eye data within trial, expand buffer');
             end
-            x = (eyepos(1)-obj.c(1)) / (obj.dx*obj.pixPerDeg);
-            y = (eyepos(2)-obj.c(2)) / (obj.dy*obj.pixPerDeg);
-            [x,y] = obj.rotatecore(x,y,obj.rot);
+            x = (eyepos(1) - obj.c(1)) / (obj.dx * obj.pixPerDeg);
+            y = (eyepos(2) - obj.c(2)) / (obj.dy * obj.pixPerDeg);
+            [x, y] = obj.rotatecore(x, y, obj.rot);
         end
         
         
-        function [updateGUI,screenTime] = screen_update_run_trial(o,state)
+        function [updateGUI, screenTime] = screen_update_run_trial(obj, state)
             % OTHER DRAWS
-            eyeI = o.FCount;
-            if o.showEye
+            eyeI = obj.FCount;
+            if obj.showEye
                 % Convert eye position from last 5 samples to pixel space
-                x = mean(o.FData(eyeI-4:eyeI,2)-o.c(1)) / o.dx;
-                y = mean(o.FData(eyeI-4:eyeI,3)-o.c(2)) / o.dy;
-                [x, y] = o.rotatecore(x,y,o.rot);
-                cX = o.centerPix(1)+round(x);
-                cY = o.centerPix(2)-round(y);   % INVERT FOR SCREEN DRAWS!
-                eR = round(o.eyeRadius*o.pixPerDeg);
-                Screen('FrameOval',o.winPtr,o.eyeColor,[cX-eR cY-eR cX+eR cY+eR],2);
+                x = mean(obj.FData(eyeI-4:eyeI,2)-obj.c(1)) / obj.dx;
+                y = mean(obj.FData(eyeI-4:eyeI,3)-obj.c(2)) / obj.dy;
+                [x, y] = obj.rotatecore(x, y, obj.rot);
+                cX = obj.centerPix(1)+round(x);
+                cY = obj.centerPix(2)-round(y);   % INVERT FOR SCREEN DRAWS!
+                eR = round(obj.eyeRadius*obj.pixPerDeg);
+                Screen('FrameOval', obj.winPtr, obj.eyeColor,... 
+                    [cX-eR, cY-eR, cX+eR, cY+eR], 2);
             end
             
             % FLIP SCREEN NOW
-            screenTime = Screen('Flip',o.winPtr,GetSecs);
-            o.FData(eyeI,6) = screenTime;
+            screenTime = Screen('Flip', obj.winPtr, GetSecs());
+            obj.FData(eyeI,6) = screenTime;
             % Reset the screen
-            Screen('FillRect',o.winPtr,o.Bkgd);
+            Screen('FillRect', obj.winPtr, obj.Bkgd);
             
             % If not time sensitive state, allow GUI updating
-            if (~ismember(state,o.TimeSensitive))
+            if (~ismember(state, obj.TimeSensitive))
                 updateGUI = true;
             else
                 updateGUI = false;
             end
         end
         
-        function update_eye_calib(obj,c,dx,dy,rot)
+        function update_eye_calib(obj, c, dx, dy, rot)
+            cprintf('_Comments', '\tFrameControl, call updateEyeCalib\n');
+            
             obj.c = c;
             obj.dx = dx;
             obj.dy = dy;
-            obj.rot = 0;
             obj.rot = rot;
         end
         
-        function CL = last_screen_flip(o)
+        function CL = last_screen_flip(obj)
             % Reset the screen and leave blank for ITI
-            o.FCount = o.FCount + 1;
-            eyeI = o.FCount;
-            Screen('FillRect',o.winPtr,o.Bkgd);
-            FEnd = Screen('Flip',o.winPtr,GetSecs);
-            o.FData(eyeI,6) = FEnd;
+            cprintf('_Comments', '\tFrameControl, call lastScreenFlip\n');
+            
+            obj.FCount = obj.FCount + 1;
+            eyeI = obj.FCount;
+            Screen('FillRect', obj.winPtr, obj.Bkgd);
+            FEnd = Screen('Flip', obj.winPtr, GetSecs());
+            obj.FData(eyeI,6) = FEnd;
 
             % Store the Clock Sixlet 
             CL = fix(clock);
             CL(1) = CL(1) - 2000;
         end
         
-        function plot_eye_trace_and_flips(obj,handles)
+        function plot_eye_trace_and_flips(obj, handles)
             % function plot_eye_trace_and_flips(handles)
             %
             % This function plots the eye trace from trial in the EyeTracker
@@ -278,32 +290,30 @@ classdef FrameControl < handle
             ppd = handles.S.pixPerDeg;
             eyeRad = handles.eyeTraceRadius;
             
-            set(ax1,'NextPlot','Add');
-            plot(ax1,0,0,'+k','LineWidth',2);
-            plot(ax1,[-eyeRad eyeRad],[0 0],'--','Color',[.5 .5 .5]);
-            plot(ax1,[0 0],[-eyeRad eyeRad],'--','Color',[.5 .5 .5]);
+            set(ax1, 'NextPlot', 'Add');
+            plot(ax1, 0, 0, '+k', 'LineWidth', 2);
+            plot(ax1, [-eyeRad eyeRad],[0 0], '--', 'Color', [.5 .5 .5]);
+            plot(ax1, [0 0],[-eyeRad eyeRad], '--', 'Color', [.5 .5 .5]);
             
             % special labeling of states
             if obj.FCount
                 if (isempty(obj.FP))  % default case, plot all traces
                     ind = 1:obj.FCount;  %any reasonable states
-                    x = (obj.FData(ind,2)-c(1)) / (dx*ppd);
-                    y = (obj.FData(ind,3)-c(2)) / (dy*ppd);
-                    %[x,y] = o.rotatecore(x,y,rot);
+                    x = (obj.FData(ind, 2) - c(1)) / (dx*ppd);
+                    y = (obj.FData(ind, 3) - c(2)) / (dy*ppd);
+                    [x,y] = obj.rotatecore(x, y, rot);
                     plot(ax1,x,y,'b.');
                 else
                     for k = 1:length(obj.FP)
                         ind = ismember(obj.FData(:,5),obj.FP(k).states);
-                        x = (obj.FData(ind,2)-c(1)) / (dx*ppd);
-                        y = (obj.FData(ind,3)-c(2)) / (dy*ppd);
-                        if rot ~= 0
-                            [x, y] = o.rotatecore(x, y, rot);
-                        end
+                        x = (obj.FData(ind,2) - c(1)) / (dx * ppd);
+                        y = (obj.FData(ind,3) - c(2)) / (dy * ppd);
+                        [x, y] = obj.rotatecore(x, y, rot);
                         plot(ax1,x,y,[obj.FP(k).col,'.']);
                     end
                 end
             end
-            axis(ax1,[-eyeRad eyeRad -eyeRad eyeRad]);
+            axis(ax1, [-eyeRad eyeRad -eyeRad eyeRad]);
             
             % Show the screen flip times 
             ax2 = handles.DataPlot4;
@@ -326,7 +336,7 @@ classdef FrameControl < handle
     end 
     
     methods (Static)
-        function [x2,y2] = rotatecore(x,y,rot)
+        function [x2,y2] = rotatecore(x, y, rot)
             if (rot)
                 anga = rot * pi /180;
                 ca = cos( anga);

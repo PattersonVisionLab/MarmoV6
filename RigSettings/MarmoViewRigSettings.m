@@ -1,5 +1,4 @@
 function S = MarmoViewRigSettings
-
 % For use with MarmoView version 3   
 %
 % Revised by JM 8/2018 to consolidate several new features and Dummy Screen
@@ -14,9 +13,13 @@ function S = MarmoViewRigSettings
 % For example, if you change the monitor set up, you only change those
 % monitor related variables here.
 
-warning('NewEra syringe pump temporarily set to false!');
+%#ok<*UNRCH> 
 
-onrig = 1;
+cprintf('_Comments', 'MarmoViewRigSettings, call\n');
+
+%warning('NewEra syringe pump temporarily set to false!');
+
+onrig = false;
 if (onrig)
     S.newera = false;           % use Newera juice pump
     S.arrington = false;        % use Arrington eye tracker
@@ -28,7 +31,7 @@ if (onrig)
     S.EyeDump = true;           % store all eye position data
     S.DataPixx = true;
 else
-    S.newera = true; %#ok<UNRCH>
+    S.newera = false; 
     S.solenoid = false;
     S.arrington = false;
     S.trackpixx = false;     
@@ -66,13 +69,13 @@ if S.DummyScreen
 else    
     
    S.monitor = 'ViewPixx-OLED';        % Monitor used for display window
-   S.screenNumber = 1;                 % Designates the display for task stimuli
+   S.screenNumber = 2;                 % Designates the display for task stimuli
    S.frameRate = 60; % 120;           % Frame rate of screen in Hz
    S.screenRect = [0 0 1920 1080];     % Screen dimensions in pixels
    S.screenWidth = 53;                 % Width of screen (cm)
    S.centerPix =  [960 540];           % Pixels of center of the screen
    S.guiLocation = [800 100 890 660];
-   S.bgColour = 127; %186;  % use 127 if gamma corrected
+   S.bgColour = 186; %186;  % use 127 if gamma corrected
 
    S.screenDistance = 57;              % Distance of eye to screen (cm)
    S.pixPerDeg = PixPerDeg(S.screenDistance, S.screenWidth, S.screenRect(3));

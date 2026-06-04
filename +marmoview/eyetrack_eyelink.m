@@ -8,35 +8,36 @@ classdef eyetrack_eyelink < handle
   
 
   properties (SetAccess = public, GetAccess = public)
-    EyeDump@logical;
+    EyeDump         logical
     eyeIdx = 1;   % LEFT EYE, Default
     screen = 0;
     tracker_info = [];
+    %  desired output file path to move edf file at end
     eyeFile = [];
     eyePath = [];
   end
   
   methods
-    function o = eyetrack_eyelink(h,winPtr,eyeFile,eyePath,varargin), % h is the handle for the marmoview gui
+    function o = eyetrack_eyelink(h, winPtr, eyeFile, eyePath, varargin) 
+        % h is the handle for the marmoview gui
 
       % initialise input parser
-      args = varargin;
-      p = inputParser;
-      p.addParamValue('EyeDump',true,@islogical); % default 1, do EyeDump
-      p.addParamValue('screen',0,@isfloat); % default 1, do EyeDump
+      p = inputParser();
+      p.KeepUnmatched = true;
+      p.addParameter('EyeDump', true, @islogical); 
+      p.addParameter('screen', 0, @isfloat); 
       p.parse(varargin{:});
 
-      args = p.Results;  
-      o.EyeDump = args.EyeDump;
-      o.screen = args.screen;
-      
-      %******** save desired output file path to move edf file at end
+      o.EyeDump = p.Results.EyeDump;
+      o.screen = p.Results.screen;
+    
+    
       o.eyeFile = eyeFile;
       o.eyePath = eyePath;
-      %***********************
-      
+
       if o.screen    
-           o.tracker_info = Eyelink.Initialize_params(o.screen, winPtr, 'eyelink_use',1,'saveEDF',o.EyeDump);
+           o.tracker_info = Eyelink.Initialize_params(o.screen, winPtr, ...
+            'eyelink_use', 1, 'saveEDF', o.EyeDump);
            o.tracker_info = Eyelink.setup(o.tracker_info);
            if (strcmp(o.tracker_info.EYE_USED,'RIGHT'))
                o.eyeIdx = 2;
@@ -47,14 +48,14 @@ classdef eyetrack_eyelink < handle
       
     end
 
-    function startfile(o,handles),   
-        if o.EyeDump
+    function startfile(obj, handles)   
+        if obj.EyeDump
            %note empty function here, startfile happens on init for Eyelink
            % so see the setup function above
         end
     end
     
-    function closefile(o),       
+    function closefile(o)       
         if o.EyeDump 
            Eyelink('CloseFile'); 
            if ~isempty(o.eyeFile) && ~isempty(o.eyePath)
@@ -67,13 +68,13 @@ classdef eyetrack_eyelink < handle
                    disp(['Files received: ' file_edf]);
                    disp('   ');
                    filedest = [fullfile(o.eyePath,o.eyeFile),'.edf'];
-                   [result,mess,messid] = movefile(file_edf,filedest);
+                   [result, mess, messid] = movefile(file_edf, filedest);
                    if (result == 0)
-                       disp(sprintf('Error in moving .edf file %s to %s',file,filedest));
+                       fprintf('Error in moving .edf file %s to %s', file, filedest);
                        disp(mess);
                        messid
                    else
-                       disp(sprintf('Success: moved %s to %s',file,filedest));
+                       fprintf('Success: moved %s to %s', file, filedest);
                        delete(file);
                    end
                end
@@ -82,21 +83,21 @@ classdef eyetrack_eyelink < handle
         Eyelink.finish(o.tracker_info);
     end
 
-    function unpause(o),    
+    function unpause(o)    
         if o.EyeDump
-           Eyelink('StartRecording');   
+           Eyelink('StartRecording')
            % vpx_SendCommandString('dataFile_Pause No');
         end
     end
 
-    function pause(o),    
+    function pause(o)    
         if o.EyeDump
-          Eyelink('StopRecording');  
+          Eyelink('StopRecording')
           % vpx_SendCommandString('dataFile_Pause Yes');
         end
     end
 
-    function [x,y] = getgaze(o),
+    function [x,y] = getgaze(o)
            eye_data = Eyelink('NewestFloatSample');
            if isfield(eye_data,'gx')
                x = -eye_data.px(o.eyeIdx)/32768;  
@@ -109,18 +110,14 @@ classdef eyetrack_eyelink < handle
            end
     end
     
-    function r = getpupil(o),
+    function r = getpupil(o)
         r = 0;  % don't need it online, will see if EDF file has it
     end
     
-    function sendcommand(o,tstring),
+    function sendcommand(o,tstring)
         Eyelink('message', tstring);
     end
     
-  end % methods
+  end 
 
-  methods (Access = private)
-
-  end % private emethods
-
-end % classdef
+end
