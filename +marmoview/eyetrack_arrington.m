@@ -12,7 +12,8 @@ classdef eyetrack_arrington < handle
     end
     
     methods
-        function obj = eyetrack_arrington(h, varargin) % h is the handle for the marmoview gui
+        function obj = eyetrack_arrington(h, varargin) 
+            % h is the handle for the marmoview gui
             
             % initialise input parser
             p = inputParser;

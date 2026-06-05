@@ -55,11 +55,11 @@ classdef eyetrack_eyelink < handle
         end
     end
     
-    function closefile(o)       
-        if o.EyeDump 
+    function closefile(obj)       
+        if obj.EyeDump 
            Eyelink('CloseFile'); 
-           if ~isempty(o.eyeFile) && ~isempty(o.eyePath)
-               file = o.tracker_info.edfFile;
+           if ~isempty(obj.eyeFile) && ~isempty(obj.eyePath)
+               file = obj.tracker_info.edfFile;
                result = Eyelink('Receivefile',file,pwd,1); 
                if (result == -1)
                    warning('pds:EyelinkGetFiles', ['receiving ' file '.edf failed!'])   
@@ -67,7 +67,7 @@ classdef eyetrack_eyelink < handle
                    file_edf = [file,'.edf'];
                    disp(['Files received: ' file_edf]);
                    disp('   ');
-                   filedest = [fullfile(o.eyePath,o.eyeFile),'.edf'];
+                   filedest = [fullfile(obj.eyePath,obj.eyeFile),'.edf'];
                    [result, mess, messid] = movefile(file_edf, filedest);
                    if (result == 0)
                        fprintf('Error in moving .edf file %s to %s', file, filedest);
@@ -80,7 +80,7 @@ classdef eyetrack_eyelink < handle
                end
            end
         end
-        Eyelink.finish(o.tracker_info);
+        Eyelink.finish(obj.tracker_info);
     end
 
     function unpause(o)    

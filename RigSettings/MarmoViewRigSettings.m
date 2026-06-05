@@ -17,9 +17,12 @@ function S = MarmoViewRigSettings
 
 cprintf('_Comments', 'MarmoViewRigSettings, call\n');
 
+% NEW COMMANDS TO INTEGRATE LATER
+S = struct();
+S.whichEye = "right";
 %warning('NewEra syringe pump temporarily set to false!');
 
-onrig = false;
+onrig = true;
 if (onrig)
     S.newera = false;           % use Newera juice pump
     S.arrington = false;        % use Arrington eye tracker
@@ -74,7 +77,7 @@ if S.DummyScreen
 else    
     
    S.monitor = 'ViewPixx-OLED';        % Monitor used for display window
-   S.screenNumber = 2;                 % Designates the display for task stimuli
+   S.screenNumber = 1;                 % Designates the display for task stimuli
    S.frameRate = 60; % 120;           % Frame rate of screen in Hz
    S.screenRect = [0 0 1920 1080];     % Screen dimensions in pixels
    S.screenWidth = 53;                 % Width of screen (cm)

@@ -34,15 +34,24 @@ function TPxData = readTrackpixxBuffer(opts)
     arguments
         opts.SaveData (1,1)         logical     = false
         opts.FileName (1,1)         string      = "TPxData.csv"
+        opts.Output   (1,1)         string      = "table"
     end
 
-    [~, ~, ext] = fileparts(opts.FileName);
-    if ext == ""
-        opts.FileName = opts.FileName + ".csv";
+    if opts.SaveData
+        [~, ~, ext] = fileparts(opts.FileName);
+        if ext == ""
+            opts.FileName = opts.FileName + ".csv";
+        end
     end
 
     status = Datapixx('GetTPxStatus');
     toRead = status.newBufferFrames;
+    if toRead == 0
+        cprintf('_[0.5,0.5,0.5]', '\t\readTrackpixxBuffer EMPTY\n');
+        TPxData = [];
+        return
+    end
+    cprintf('_[0.5,0.5,0.5]', '\t\readTrackpixxBuffer (%u frames)\n', toRead);
     [bufferData, ~, ~] = Datapixx('ReadTPxData', toRead);
 
     %save eye data from trial as a table in the trial structure

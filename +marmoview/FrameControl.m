@@ -160,6 +160,7 @@ classdef FrameControl < handle
         end
         
         function eyeData = upload_eyeData(obj)
+            cprintf('_Comments', '\tFrameControl, call uploadEyeData\n');
             if obj.FCount
                 eyeData = obj.FData(1:obj.FCount,:);
             else
@@ -177,6 +178,8 @@ classdef FrameControl < handle
         
         %********* main routines below for the work during trials
         function CL = prep_run_trial(obj, eyepos, pupil)
+            % PREPRUNTRIAL Runs every screen flip
+            
             cprintf('_Comments', '\tFrameControl, call prepRunTrial\n');
             obj.FData(:,:) = NaN;  % set all to NaN at start
             obj.FData(1:5,1) = GetSecs;  % column 1 timelock on eye pos
@@ -201,7 +204,7 @@ classdef FrameControl < handle
         end
         
         function [currentTime,x,y] = grabeye_run_trial(obj,state,eyepos,pupil)
-            cprintf('_Comments', '\tFrameControl, call prepRunTrial\n');
+            %cprintf('_Comments', '\tFrameControl, call grabEyeRunTrial\n');
             currentTime = GetSecs();
 
             obj.FCount = obj.FCount + 1;
@@ -251,7 +254,7 @@ classdef FrameControl < handle
         end
         
         function update_eye_calib(obj, c, dx, dy, rot)
-            cprintf('_Comments', '\tFrameControl, call updateEyeCalib\n');
+            %cprintf('_Comments', '\tFrameControl, call updateEyeCalib\n');
             
             obj.c = c;
             obj.dx = dx;
@@ -283,21 +286,19 @@ classdef FrameControl < handle
             % And it also plots the screen frame flips
             
             ax1 = handles.EyeTrace;
-            dx = handles.A.dx;
-            dy = handles.A.dy;
-            c = handles.A.c;
-            rot = handles.A.rot;
+            dx = handles.A.dx; dy = handles.A.dy;
+            c = handles.A.c; rot = handles.A.rot;
             ppd = handles.S.pixPerDeg;
             eyeRad = handles.eyeTraceRadius;
             
             set(ax1, 'NextPlot', 'Add');
             plot(ax1, 0, 0, '+k', 'LineWidth', 2);
-            plot(ax1, [-eyeRad eyeRad],[0 0], '--', 'Color', [.5 .5 .5]);
-            plot(ax1, [0 0],[-eyeRad eyeRad], '--', 'Color', [.5 .5 .5]);
+            plot(ax1, [-eyeRad eyeRad], [0 0], '--', 'Color', [.5 .5 .5]);
+            plot(ax1, [0 0], [-eyeRad eyeRad], '--', 'Color', [.5 .5 .5]);
             
             % special labeling of states
             if obj.FCount
-                if (isempty(obj.FP))  % default case, plot all traces
+                if isempty(obj.FP)  % default case, plot all traces
                     ind = 1:obj.FCount;  %any reasonable states
                     x = (obj.FData(ind, 2) - c(1)) / (dx*ppd);
                     y = (obj.FData(ind, 3) - c(2)) / (dy*ppd);
@@ -313,11 +314,11 @@ classdef FrameControl < handle
                     end
                 end
             end
-            axis(ax1, [-eyeRad eyeRad -eyeRad eyeRad]);
+            axis(ax1, [-eyeRad, eyeRad, -eyeRad, eyeRad]);
             
             % Show the screen flip times 
             ax2 = handles.DataPlot4;
-            dT = (1/obj.frameRate);
+            dT = (1 / obj.frameRate);
             set(ax2, 'NextPlot', 'Replace');
             if (obj.FCount > 1)
                 tN = obj.FCount - 1;  %drop last flip, worst one

@@ -113,12 +113,12 @@ classdef gaussimages < handle
         function beforeTrial(~)
         end
         
-        function beforeFrame(~)
-            if (o.imagenum)
-                o.drawGaussImage(o.imagenum);
+        function beforeFrame(obj)
+            if (obj.imagenum)
+                obj.drawGaussImage(obj.imagenum);
             else
-                rd = randi(length(o.tex));
-                o.drawGaussImage(rd);
+                rd = randi(length(obj.tex));
+                obj.drawGaussImage(rd);
             end
         end
         

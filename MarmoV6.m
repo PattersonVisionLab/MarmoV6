@@ -149,7 +149,7 @@ handles.A.outputFile = 'none';
 % OPEN UP COMMUNICATION WITH THE PUMP FOR REWARD DELIVERY -- THIS IS DONE
 % IMMEDIATELY USING THE RIG SETTINGS, SO THAT JUICE IS AVAILABLE TO THE
 % MARMOSET WHILE NO PROTOCOLS ARE LOADED
-if handles.S.newera % create an @newera object for delivering liquid reward
+if handles.S.newera % 
     handles.reward = marmoview.newera(hObject,...
         'port', S.pumpCom,...
         'diameter', S.pumpDiameter,...
@@ -207,8 +207,8 @@ handles.lastRunWasImage = false;
 set([handles.RunTrial, handles.FlipFrame, handles.ClearSettings], "Enable", "off");
 set([handles.Initialize, handles.PauseTrial], 'Enable','Off');
 set([handles.Background_Image, handles.Calib_Screen], 'Enable', 'on');
-set([handles.OutputPanel, handles.ParameterPanel, handles.EyeTrackerPanel,... 
-    handles.TaskPerformancePanel], "Visible", "off");
+set([handles.ParameterPanel, handles.EyeTrackerPanel,...
+    handles.SettingsPanel, handles.TaskPerformancePanel], "Visible", "off");
 
 % Force to select subject name first thing
 handles.outputSubject = 'none';
@@ -262,10 +262,10 @@ end
 % If file exists, then we can get the protocol initialized
 if exist(handles.settingsFile,'file')
     if (strcmp(handles.outputSubject,'none'))
-        set(handles.Initialize,'Enable','off');
+        set(handles.Initialize, 'Enable', 'off');
         tstring = 'Please select SUBJECT NAME >>>';
     else
-        set(handles.Initialize,'Enable','on');
+        set(handles.Initialize, 'Enable', 'on');
         tstring = 'Ready to initialize protocol...';
     end
 else
@@ -324,7 +324,7 @@ cmd = sprintf('handles.PR = %s(handles.A.window);',handles.S.protocol_class);
 eval(cmd);   %Establishes the PR object
 %***************
 % GENERATE DEFAULT TRIALS LIST
-handles.PR.generate_trialsList(handles.S,handles.P);
+handles.PR.generate_trialsList(handles.S, handles.P);
 %*****************
 handles.PR.initFunc(handles.S, handles.P);
 %***************
@@ -332,11 +332,11 @@ handles.PR.initFunc(handles.S, handles.P);
 % ALSO GENERATE A BACKGROUND IMAGE VIEWER PROTOCOL
 %********* Setup Image Viewer Protocol ******************
 cd(handles.settingsPath);
-[handles.SI,handles.PI] = BackImage;
+[handles.SI, handles.PI] = BackImage;
 cd(handles.taskPath);
 % INITIALIZE THE Back Image Protocl
 handles.PRI = protocols.PR_BackImage(handles.A.window);
-handles.PRI.generate_trialsList(handles.SI,handles.PI);
+handles.PRI.generate_trialsList(handles.SI, handles.PI);
 handles.PRI.initFunc(handles.SI, handles.PI);
 %***************
 
@@ -363,11 +363,8 @@ while exist([handles.outputPath handles.A.outputFile],'file')
         '_',handles.outputDate,'_',handles.outputSuffix,'.mat');
 end
 
-%*********** ADDED VIA SHAUN
-% SC: eye posn data
+% TODO: arrington only??
 handles.eyetrack.startfile(handles);
-%
-%*************************
 
 % Show the file name on the GUI
 set(handles.OutputSuffixEdit,'String',handles.outputSuffix);
@@ -398,11 +395,11 @@ set(handles.ParameterText, 'String', handles.S.(handles.pNames{1}));
 set(handles.ParameterEdit, 'String', num2str(handles.P.(handles.pNames{1})));
 
 % UPDATE ACCESS TO CONTROLS
-set([handles.RunTrial, handles.FlipFrame, handles.ClearSettings], "Enable", "off");
+set([handles.RunTrial, handles.FlipFrame, handles.ClearSettings], "Enable", "on");
 set([handles.OutputPanel, handles.ParameterPanel, handles.EyeTrackerPanel,... 
-    handles.TaskPerformancePanel], "Visible", "off");
+    handles.TaskPerformancePanel], "Visible", "on");
 set([handles.OutputPrefixEdit, handles.OutputDateEdit, handles.OutputSuffixEdit,...
-    handles.OutputSubjectEdit], 'Enable','Off');
+    handles.OutputSubjectEdit], 'Enable','off');
 set([handles.Background_Image, handles.Calib_Screen], 'Enable', 'on');
 set([handles.GraphZoomIn, handles.GraphZoomOut], 'Enable', 'on');
 
@@ -527,7 +524,7 @@ ChangeLight(handles.TaskLight, [.5 .5 .5]);
 % program without closing MarmoV6 (should be rare)
 set(handles.OutputPanel, 'Visible', 'On');
 set([handles.OutputPrefixEdit, handles.OutputDateEdit, handles.OutputSuffixEdit],...
-    'Enable','Off');
+    "enable", "off");
 set(handles.OutputSubjectEdit, 'Enable', 'On'); 
 
 % Update handles structure
@@ -721,6 +718,9 @@ while handles.runTask && A.j <= A.finish
     end
     %**************************************************
     
+    if S.trackpixx
+        handles.eyetrack.unpause();
+    end
     % ----------------
     % Start trial loop
     % ---------------------------------------------------------------------
@@ -798,12 +798,19 @@ while handles.runTask && A.j <= A.finish
         end
     end
     
+  
     %******** Update eye trace window before ITI start
     ENDCLOCK = handles.FC.last_screen_flip();   % set screen to gray, trial over, start ITI
     ENDCLOCKTIME = GetSecs();
+    % Stop acquisition of data to the buffer. 
+    if S.trackpixx
+        handles.eyetrack.pause();
+    end
+    
     %******* the data pix strobe will take about 0.5 ms **********
     if (S.DataPixx)
-        datapixx.strobe(62,0);  % send all bits on but first (254) to mark trial end
+        % send all bits on but first (254) to mark trial end
+        datapixx.strobe(62,0);  
     end
     
     %****** AGAIN this is a place for timing event to synch up trial ends
@@ -862,6 +869,7 @@ while handles.runTask && A.j <= A.finish
     D.ENDCLOCK = ENDCLOCK;
     D.STARTCLOCKTIME = STARTCLOCKTIME;
     D.ENDCLOCKTIME = ENDCLOCKTIME;
+    
 
     if ~handles.runImage
         %if critical trial info save as D.PR
@@ -875,15 +883,20 @@ while handles.runTask && A.j <= A.finish
         D.PR = handles.PRI.end_plots(P,A);
     end
 
+    
+    if handles.S.trackpixx
+        D.TPxData = handles.eyetrack.getDataOnBuffer();
+    else
+        D.TPxData = [];
+    end
     D.eyeData = handles.FC.upload_eyeData();
     [c,dx,dy,rot] = handles.FC.upload_C();
     D.c = c; D.dx = dx; D.dy = dy; D.rot = rot;
-    % log the time of juice pulses
+    
+    % log: 1) time of juice pulses, 2) supplementary juice, 3) volume
     D.rewardtimes = rewardtimes;    
-    % SUPPLEMENTARY JUICE DURING THE TRIAL
     D.juiceButtonCount = handles.A.juiceCounter; 
-    % THE VOLUME OF JUICE PULSES DURING THE TRIAL
-    D.juiceVolume = A.juiceVolume; 
+    D.juiceVolume = A.juiceVolume;  %#ok<STRNU>
     
     % -------------
     % SAVE THE DATA
@@ -901,7 +914,10 @@ while handles.runTask && A.j <= A.finish
     cd(handles.taskPath);               % return to task directory
     eval(sprintf('clear %s;',Dstring));
     clear D;                 % release the memory for D once saved
+    
+    %**********************************************************************
     %************** END OF THE TRIAL DATA SECTION *************************
+    %**********************************************************************
     
     % Update trial count
     A.j = A.j+1;
@@ -916,9 +932,9 @@ while handles.runTask && A.j <= A.finish
     if handles.A.juiceVolume ~= A.juiceVolume
         fprintf(A.pump,['0 VOL ' num2str(A.juiceVolume/1000)]);
         if handles.S.solenoid
-            set(handles.JuiceVolumeText,'String',[num2str(A.juiceVolume) ' ms']);
+            set(handles.JuiceVolumeText, 'String', [num2str(A.juiceVolume) ' ms']);
         else
-            set(handles.JuiceVolumeText,'String',[num2str(A.juiceVolume) ' ul']);
+            set(handles.JuiceVolumeText, 'String', [num2str(A.juiceVolume) ' ul']);
         end
     end
     
@@ -933,7 +949,7 @@ while handles.runTask && A.j <= A.finish
     end
     
     % If it was an interleave Image trial, set it back proper
-    if (SetRunBack == 1)
+    if SetRunBack == 1
         handles.runImage = false;
         SetRunBack = 0;
         S = handles.S;
@@ -967,12 +983,10 @@ while handles.runTask && A.j <= A.finish
     end
 end
 
-%***** ADDED VIA SHAUN ********
-%%% SC: eye posn data
-% tell ViewPoint to pause recording of eye posn data
+%************************ LOOP IS COMPLETE ********************************
+
+% PAUSE THE EYETRACKER
 handles.eyetrack.pause();
-%%%
-%******************************
 
 % NO TASK RUNNING FLAGS SHOULD BE ON ANYMORE
 handles.runTask = false;
@@ -987,12 +1001,7 @@ for i = 1:size(handles.pNames,1)
 end
 set(handles.Parameters,'String',handles.pList);
 
-%********* TURN GUI BACK ON
-
-
-%****** Gray out controls so it is clear you can't press them
-
-% Update UI to reflect task status
+% Turn GUI back on...
 ChangeLight(handles.TaskLight, [0 1 0]);
 set([handles.RunTrial, handles.FlipFrame, handles.Background_Image,...
      handles.Calib_Screen, handles.CloseGui, handles.ClearSettings,...
@@ -1006,43 +1015,45 @@ if ~handles.S.DummyEye
 end
 set(handles.PauseTrial,'Enable','Off');
 UpdateEyeText(handles);
-
+% Done and ready for another protocol
 ChangeLight(handles.TaskLight,[1 0 0]);
 set(handles.StatusText, 'String', 'Protocol is ready to run trials.');
 
 
-% UPDATE HANDLES STRUCTURE
 guidata(hObject,handles);
 
 
 % STOP THE TRIAL LOOP ONCE THE CURRENT TRIAL HAS COMPLETED
 function PauseTrial_Callback(hObject, eventdata, handles)
+cprintf('_[0.5,0.1,0.6]', '\tMV6, callback ChooseSettings\n');
 % Pause button can also act as an unpause button
 if ~handles.stopTask
     handles.stopTask = true;
     % SET TASK LIGHT TO ORANGE
-    ChangeLight(handles.TaskLight,[.9 .7 .2]);
+    ChangeLight(handles.TaskLight, [.9 .7 .2]);
 end
-% UPDATE HANDLES STRUCTURE
+
 guidata(hObject,handles);
 
 
 % GIVE A JUICE REWARD
 function GiveJuice_Callback(hObject, eventdata, handles)
+cprintf('_[0.5,0.1,0.6]', '\tMV6, callback GiveJuice\n');
 handles.reward.deliver();
 handles.A.juiceCounter = handles.A.juiceCounter + 1;
 guidata(hObject,handles);
 
 
-% CHANGE THE SIZE OF THE JUICE REWARD TO BE DELIVERED
 function JuiceVolumeEdit_CreateFcn(hObject, eventdata, handles) %#ok<*INUSD>
+
+% CHANGE THE SIZE OF THE JUICE REWARD TO BE DELIVERED
 function JuiceVolumeEdit_Callback(hObject, eventdata, handles)
+cprintf('_[0.5,0.1,0.6]', '\tMV6, callback EditJuiceVolume\n');
 vol = get(hObject,'String'); % volume is entered in microliters!!
 volML = str2double(vol)/1e3; % milliliters
-% fprintf(handles.A.pump,['0 VOL ' volML]);
 handles.reward.volume = volML; % milliliters
 if handles.S.solenoid
-    set(handles.JuiceVolumeText,'String',[vol ' ms']); % displayed in microliters!!
+    set(handles.JuiceVolumeText,'String',[vol ' ms']);
 else
     set(handles.JuiceVolumeText,'String',[vol ' ul']);
 end
@@ -1053,16 +1064,18 @@ guidata(hObject,handles);
 
 % RESETS THE DISPLAY SCREEN IF IT WAS INTERUPTED (BY E.G. ALT-TAB)
 function FlipFrame_Callback(hObject, eventdata, handles)
+cprintf('_[0.5,0.1,0.6]', '\tMV6, callback FlipFrame\n');
 % If a bkgd parameter exists, flip frame with background color value
-if isfield(handles.P,'bkgd')
-    Screen('FillRect',handles.A.window,uint8(handles.P.bkgd));
+if isfield(handles.P, 'bkgd')
+    Screen('FillRect', handles.A.window, uint8(handles.P.bkgd));
 end
-Screen('Flip',handles.A.window);
+Screen('Flip', handles.A.window);
 
 
 %%%%% PARAMETER CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function Parameters_CreateFcn(hObject, eventdata, handles)
 function Parameters_Callback(hObject, eventdata, handles)
+cprintf('_[0.5,0.1,0.6]', '\tMV6, callback ParameterClick\n');
 % Get the index of the selected field
 i = get(hObject,'Value');
 % Set the parameter text to a description of the parameter
@@ -1114,8 +1127,8 @@ guidata(hObject,handles);
 
 %%%%% SHIFT EYE POSITION CALLBACKS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function CenterEye_Callback(hObject, eventdata, handles)
-[x,y] = handles.eyetrack.getgaze();
-handles.A.c = [x,y];
+[x, y] = handles.eyetrack.getgaze();
+handles.A.c = [x, y];
 guidata(hObject,handles);
 UpdateEyeText(handles);
 UpdateEyePlot(handles);
@@ -1222,42 +1235,58 @@ guidata(hObject,handles);
 
 %%%%% CLOSE THE GUI %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function CloseGui_Callback(hObject, eventdata, handles)
-% Close all screens from ptb
-sca;
+% Close Psychtoolbox screens
+Screen('Close'); sca; 
+
 % If Data File Open, condense appended D's into one struct ****
 CondenseAppendedData(hObject,handles);
-% Close the pump
-handles.reward.report()
-delete(handles.reward); handles.reward = NaN;
 
 % Save any changes to the calibration
-c = handles.A.c;     
-dx = handles.A.dx; 
-dy = handles.A.dy;
-rot = handles.A.rot;
+c = handles.A.c; dx = handles.A.dx; dy = handles.A.dy; rot = handles.A.rot;
 if ~handles.S.DummyEye
     save([handles.supportPath 'MarmoViewLastCalib.mat'],'c','dx','dy','rot');
 end
-%********** if using the DataPixx, close it here
-if (handles.S.DataPixx)
+
+% Close the pump
+handles.reward.report()
+delete(handles.reward); 
+handles.reward = NaN;
+
+% Close the trackpixx 
+if handles.S.trackpixx && handles.eyetrack.isAwake
+    status = Datapixx('GetTPxStatus');
+    toRead = status.newBufferFrames;
+    if toRead > 0
+        cprintf('_[0.5,0.5,0.5]', 'Closing MView, clearing %u frames on buffer\n', toRead);
+        
+        Datapixx('ReadTPxData', toRead);
+    end
+    Datapixx('SetTpxSleep'); 
+    Datapixx('RegWrRd');
+end
+
+% Close the datapixx
+if handles.S.DataPixx
     datapixx.close();
 end
+
 % Close the gui window
 close(handles.figure1);
 
 %%%%% AUXILLIARY FUNCTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function ChangeLight(h,col)
+function ChangeLight(h, newColor)
 % THIS FUNCTION CHANGES THE TASK LIGHT
-scatter(h,.5,.5,600,'o','MarkerEdgeColor','k','MarkerFaceColor',col);
+scatter(h, .5, .5, 600,... 
+    'o', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', newColor);
 axis(h,[0 1 0 1]); bkgd = [.931 .931 .931];
-set(h,'XColor',bkgd,'YColor',bkgd,'Color',bkgd);
+set(h, 'XColor', bkgd, 'YColor', bkgd, 'Color', bkgd);
 
 % THIS FUNCTION UPDATES THE RAW EYE CALIBRATION NUMBERS IN THE GUI
 function UpdateEyeText(h)
-set(h.CenterText,'String',sprintf('[%.3g %.3g]',h.A.c(1),h.A.c(2)));
-dx = 100*h.A.dx; dy = 100*h.A.dy; % A LARGE MAGNIFICATION IS USED TO EFFICIENTLY DISPLAY 2 DIGITS
+set(h.CenterText, 'String', sprintf('[%.3g %.3g]',h.A.c(1),h.A.c(2)));
+dx = 100*h.A.dx; dy = 100*h.A.dy;
 set(h.GainText,'String',sprintf('[%.3g %.3g]',dx,dy));
-set(h.RotationAngleText,'String',sprintf('%.3g',h.A.rot));
+set(h.RotationAngleText, 'String', sprintf('%.3g', h.A.rot));
 
 % THIS FUNCTION UPDATES PLOTS OF THE EYE TRACE
 function UpdateEyePlot(handles)
@@ -1409,37 +1438,39 @@ handles.PR.initFunc(handles.S,handles.P);
 guidata(hObject,handles);
 
 
-%******** We store trial by trial data while running
-%******** but before closing, we condense it back to
-%******** a single D struct.
-%******** NOTE: if MarmoView hangs or crashes, you would
-%******** still be able to call this routine on what is saved
+
 function CondenseAppendedData(hObject, handles)
+% We store trial by trial data while running but before closing, we
+% condense it back to a single D struct. NOTE: if MarmoView hangs or
+% crashes, you would still be able to call this routine on what is saved
 
 guidata(hObject,handles); drawnow;
+
 A = handles.A;   % get the A struct (carries output file names)
 %******* go to outputPath and load current data
-if ~strcmp(A.outputFile,'none')  % could be in state with no open file
-    cd(handles.outputPath);             % goto output directory
-    if exist(A.outputFile,'file')
-        NewOutput = [A.outputFile(1:(end-4)),'z.mat'];
-        fprintf('Condensing data for file %s to %s\n',A.outputFile,NewOutput);
-        zdata = load(A.outputFile);    % load in all data
-        S = zdata.S;                   % get settings struct
-        D = cell(1,1);
-        ND = length(fields(zdata));      % includes all trials, minus one for S
-        for k = 1:(ND-1)
-            Dstring = sprintf('D%d',k);
-            D{k,1} = zdata.(Dstring);
-        end
-        clear zdata;
-        %********
-        save(NewOutput,'S','D');   % append file
-        clear D;
-        fprintf('Data file %s reformatted.\n',NewOutput);
-    end
-    cd(handles.taskPath);            % return to task directory
+if strcmp(A.outputFile, 'none')  % could be in state with no open file
+    return
 end
+cd(handles.outputPath);             % goto output directory
+if exist(A.outputFile,'file')
+    NewOutput = [A.outputFile(1:(end-4)),'z.mat'];
+    fprintf('Condensing data for file %s to %s\n', A.outputFile, NewOutput);
+    zdata = load(A.outputFile);    % load in all data
+    S = zdata.S;                   % get settings struct
+    D = cell(1,1);
+    ND = length(fields(zdata));      % includes all trials, minus one for S
+    for k = 1:(ND-1)
+        Dstring = sprintf('D%d',k);
+        D{k,1} = zdata.(Dstring);
+    end
+    clear zdata;
+    %********
+    save(NewOutput, 'S', 'D');   % append file
+    clear D;
+    fprintf('Data file %s reformatted.\n',NewOutput);
+end
+cd(handles.taskPath);            % return to task directory
+
 
 function RotationAngleText_Callback(hObject, eventdata, handles)
 % hObject    handle to RotationAngleText (see GCBO)
