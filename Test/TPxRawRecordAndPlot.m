@@ -16,7 +16,7 @@ Datapixx('SetTPxAwake');
 Datapixx('SetExpectedIrisSizeInPixels', 115)
 Datapixx('RegWrRd');
 image = Datapixx('GetEyeImage');
-[windowPtr, windowRect]=PsychImaging('OpenWindow', 0, 0);
+[windowPtr, windowRect] = PsychImaging('OpenWindow', 0, 0);
 KbName('UnifyKeyNames');
 t = Datapixx('GetTime');
 t2 = Datapixx('GetTime');
@@ -65,7 +65,6 @@ Screen('BlendFunction', windowPtr, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
 recording = 0;
 start_time = 0;
 while (1)
-
     
 if ((t2 - t) > 1) 
     Datapixx('RegWrRd');
@@ -137,7 +136,7 @@ Screen('Flip', windowPtr);
 % Datapixx('StopTPxSchedule');
 % Datapixx('RegWrRd');
 % finish_time = Datapixx('GetTime');
-fprintf('Recording lasted %f seconds', finish_time-start_time);
+fprintf('Recording lasted %f seconds', finish_time - start_time);
 WaitSecs(2.0);
 Datapixx('RegWrRd');
 status = Datapixx('GetTPxStatus');

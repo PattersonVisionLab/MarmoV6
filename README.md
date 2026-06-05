@@ -1,12 +1,20 @@
 
+### Structures
+- **`S`**:  Settings
+- **`P`**:  Parameters
+- **`C`**:  Calibration
+- **`D`**:  Data (P, eyeData, PR, C)
+- **`PR`**: Protocol ()
+- **`FC`**: FrameControl object
+
 ### Light
 - Red: protocol loaded but not running
 - Blue: protocol initializing
 - Grey:
 - Green:
 
-### Eyetrackers
 
+### Eyetrackers
 - `startfile`: needed for arrington, automatic for eyelink, up to us for trackpixx
 - `closefile`: needed for eyelink and arrington
 - `pause`:
@@ -28,3 +36,5 @@
 - `Iti = end_run_trial(obj)`
 - `plot_trace(obj, handles)`
 - `PR = end_plots(obj, P, A)`
+
+

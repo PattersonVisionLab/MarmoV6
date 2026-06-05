@@ -31,8 +31,11 @@ classdef EyeTracker < handle
         function unpause(obj)
         end
 
-        function [x1, y2, x2, y2] = getgaze(obj)
-            % 3rd and second arguments for binocular only
+        function [x1, y2] = getgaze(obj)
+            
         end 
+
+        function r = getpupil(obj)
+        end
     end
 end

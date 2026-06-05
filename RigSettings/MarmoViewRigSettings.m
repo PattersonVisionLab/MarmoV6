@@ -44,10 +44,15 @@ end
 S.TimeSensitive = [];  % default, allow GUI updating in run func states
 %***************************
 
-S.pumpCom = 'COM4';                 % COM port the New Era syringe pump
-S.pumpDiameter = 20;                % internal diameter of the juice syringe (mm)
-S.pumpRate = 20;                    % rate to deliver juice (ml/minute)
-S.pumpDefVol = 0.01;                % default dispensing volume (ml)
+S.pumpCom = 'COM4';       % COM port the New Era syringe pump
+S.pumpDiameter = 20;      % internal diameter of the juice syringe (mm)
+S.pumpRate = 20;          % rate to deliver juice (ml/minute)
+S.pumpDefVol = 0.01;      % default dispensing volume (ml)
+
+
+S.expectedIrisSize = 115;
+S.ledIntensity = 8;
+
 
 if S.DummyScreen
 
@@ -83,4 +88,4 @@ else
 end
 
 % 2.2 single value gamma correction works for BenQ
-S.gamma = 1;                       
+S.gamma = 2.2;                       

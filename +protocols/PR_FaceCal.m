@@ -100,10 +100,10 @@ classdef PR_FaceCal < handle
             %******* set which states are TimeSensitive, if [] then none
             TS = [];  % no sensitive states in FaceCal
             %********
-            obj.startTime = GetSecs;
+            obj.startTime = GetSecs();
         end
         
-        function keepgoing = continue_run_trial(obj, screenTime)
+        function keepgoing = continue_run_trial(obj, ~)
             keepgoing = 0;
             if (obj.state < 1)
                 keepgoing = 1;
@@ -111,7 +111,7 @@ classdef PR_FaceCal < handle
         end
         
         %******************** THIS IS THE BIG FUNCTION *************
-        function drop = state_and_screen_update(obj,currentTime, x, y)
+        function drop = state_and_screen_update(obj, currentTime, x, y)
             drop = 0;
             %******* THIS PART CHANGES WITH EACH PROTOCOL ****************
             if obj.state == 0 && currentTime > obj.startTime + obj.P.faceDur

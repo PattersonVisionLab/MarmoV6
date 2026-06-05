@@ -192,44 +192,35 @@ end
 % TEXT TO RUN PROPERLY, CALBIRATION MUST ALREADY BE IN STRUCTURE 'A'
 handles.A
 UpdateEyeText(handles);
-handles.shiftSize = str2double(get(handles.ShiftSize,'String'));
-handles.gainSize = str2double(get(handles.GainSize,'String'));
+handles.shiftSize = str2double(get(handles.ShiftSize, 'String'));
+handles.gainSize = str2double(get(handles.GainSize, 'String'));
 
 % THESE VARIABLES CONTROL THE RUN LOOP
 handles.runTask = false;
 handles.stopTask = false;
-%******** New parameters for running background image
+% These variables control interleaved background images
 handles.runOneTrial = false;
 handles.runImage = false;
 handles.lastRunWasImage = false;
 
 % SET ACCESS TO GUI CONTROLS
-set(handles.Initialize,'Enable','Off');
-set(handles.ClearSettings,'Enable','Off');
-set(handles.RunTrial,'Enable','Off');
-set(handles.PauseTrial,'Enable','Off');
-set(handles.FlipFrame,'Enable','Off');
-set(handles.ParameterPanel,'Visible','Off');
-set(handles.EyeTrackerPanel,'Visible','Off');
-set(handles.Background_Image,'Enable','Off');
-set(handles.Calib_Screen,'Enable','Off');
-set(handles.TaskPerformancePanel,'Visible','Off');
-set(handles.SettingsPanel,'Visible','Off');
+set([handles.RunTrial, handles.FlipFrame, handles.ClearSettings], "Enable", "off");
+set([handles.Initialize, handles.PauseTrial], 'Enable','Off');
+set([handles.Background_Image, handles.Calib_Screen], 'Enable', 'on');
+set([handles.OutputPanel, handles.ParameterPanel, handles.EyeTrackerPanel,... 
+    handles.TaskPerformancePanel], "Visible", "off");
 
 % Force to select subject name first thing
-set(handles.OutputPrefixEdit,'Enable','Off');
-set(handles.OutputSubjectEdit,'String','none');
 handles.outputSubject = 'none';
-% set(handles.OutputSubjectEdit,'Enable','Off');   %user can edit this!
-set(handles.OutputDateEdit,'Enable','Off');
-set(handles.OutputSuffixEdit,'Enable','Off');
-%****** set names to empty for starting
 handles.outputPrefix = [];
 handles.outputDateEdit = [];
 handles.outputSuffixEdit = [];
-%**************
-tstring = 'Please select SUBJECT to begin';
-set(handles.StatusText,'String',tstring);
+set(handles.OutputSubjectEdit, 'String', 'none');
+set(handles.OutputPrefixEdit,'Enable','Off');
+set(handles.OutputDateEdit,'Enable','Off');
+set(handles.OutputSuffixEdit,'Enable','Off');
+
+set(handles.StatusText, 'String', 'Please select SUBJECT to begin');
 
 % For the protocol title, note that no protocol has been loaded yet
 set(handles.ProtocolTitle, 'String', 'No protocol is loaded.');
@@ -391,37 +382,29 @@ set(handles.TrialCountText,'String',['Trial ' num2str(handles.A.j-1)]);
 set(handles.TrialMaxText,'String',num2str(handles.A.finish));
 set(handles.TrialMaxEdit,'String','');
 
-% Get strings for the parameters list
-handles.pNames = fieldnames(handles.P);         % pNames are the actual parameter names
-handles.pList = cell(size(handles.pNames,1),1); % pList is the list of parameter names with values
+% pNames are the actual parameter names
+handles.pNames = fieldnames(handles.P);         
+% pList is the list of parameter names with values
+handles.pList = cell(size(handles.pNames,1),1); 
 for i = 1:size(handles.pNames,1)
     pName = handles.pNames{i};
-    tName = sprintf('%s = %2g',pName,handles.P.(pName));
+    tName = sprintf('%s = %2g', pName, handles.P.(pName));
     handles.pList{i,1} = tName;
 end
-set(handles.Parameters,'String',handles.pList);
+set(handles.Parameters, 'String', handles.pList);
 % For the highlighted parameter, provide a description and editable value
-set(handles.Parameters,'Value',1);
-set(handles.ParameterText,'String',handles.S.(handles.pNames{1}));
-set(handles.ParameterEdit,'String',num2str(handles.P.(handles.pNames{1})));
+set(handles.Parameters, 'Value', 1);
+set(handles.ParameterText, 'String', handles.S.(handles.pNames{1}));
+set(handles.ParameterEdit, 'String', num2str(handles.P.(handles.pNames{1})));
 
 % UPDATE ACCESS TO CONTROLS
-set(handles.RunTrial,'Enable','On');
-set(handles.FlipFrame,'Enable','On');
-set(handles.ClearSettings,'Enable','On');
-set(handles.ParameterPanel,'Visible','On');
-set(handles.EyeTrackerPanel,'Visible','On');
-set(handles.OutputPanel,'Visible','On');
-set(handles.OutputSubjectEdit,'Enable','Off');
-set(handles.OutputPrefixEdit,'Enable','Off');
-set(handles.OutputDateEdit,'Enable','Off');
-set(handles.OutputSuffixEdit,'Enable','Off');
-set(handles.TaskPerformancePanel,'Visible','On');
-set(handles.Background_Image,'Enable','On');
-set(handles.Calib_Screen,'Enable','On');
-%******* allow for graph zoom in and out
-set(handles.GraphZoomIn,'Enable','On');
-set(handles.GraphZoomOut,'Enable','On');
+set([handles.RunTrial, handles.FlipFrame, handles.ClearSettings], "Enable", "off");
+set([handles.OutputPanel, handles.ParameterPanel, handles.EyeTrackerPanel,... 
+    handles.TaskPerformancePanel], "Visible", "off");
+set([handles.OutputPrefixEdit, handles.OutputDateEdit, handles.OutputSuffixEdit,...
+    handles.OutputSubjectEdit], 'Enable','Off');
+set([handles.Background_Image, handles.Calib_Screen], 'Enable', 'on');
+set([handles.GraphZoomIn, handles.GraphZoomOut], 'Enable', 'on');
 
 %*******Blank the eyetrace plot
 h = handles.EyeTrace;
@@ -435,14 +418,12 @@ axis(h,[-eyeRad eyeRad -eyeRad eyeRad]);
 %*************************
 
 if handles.S.DummyEye
-    EnableEyeCalibration(handles, 'Off');  %dont update if Dummy, use mouse
-    %******* but allow for graph zoom in and out
-    set(handles.GraphZoomIn,'Enable','On');
-    set(handles.GraphZoomOut,'Enable','On');
+    EnableEyeCalibration(handles, 'Off'); 
+    set([handles.GraphZoomIn, handles.GraphZoomOut], 'Enable', 'on');
 end
 
 % UPDATE GUI STATUS
-set(handles.StatusText,'String','Protocol is ready to run trials.');
+set(handles.StatusText, 'String', 'Protocol is ready to run trials.');
 % Now that a protocol is loaded (but not running), task light is red
 ChangeLight(handles.TaskLight,[1 0 0]);
 
@@ -450,7 +431,8 @@ ChangeLight(handles.TaskLight,[1 0 0]);
 handles.A.juiceCounter = 0;
 
 % UPDATE HANDLES STRUCTURE
-guidata(hObject,handles);
+guidata(hObject, handles);
+% -----------------------------------------------------------------------------
 
 
 % UNLOAD CURRENT PROTOCOL, RESET GUI TO INITIAL STATE
@@ -458,33 +440,21 @@ function ClearSettings_Callback(hObject, eventdata, handles)
 cprintf('_[0.5,0.1,0.6]', '\tMV6, callback ClearSettings\n');
             
 % DISABLE RUNNING THINGS WHILE CLEARING
-set(handles.RunTrial,'Enable','Off');
-set(handles.FlipFrame,'Enable','Off');
-set(handles.ClearSettings,'Enable','Off');
-set(handles.OutputPanel,'Visible','Off');
-set(handles.ParameterPanel,'Visible','Off');
-set(handles.EyeTrackerPanel,'Visible','Off');
-set(handles.OutputPanel,'Visible','Off');
-set(handles.TaskPerformancePanel,'Visible','Off');
-set(handles.Background_Image,'Enable','Off');
-set(handles.Calib_Screen,'Enable','Off');
+set([handles.RunTrial, handles.FlipFrame, handles.ClearSettings,...
+    handles.Background_Image, handles.Calib_Screen], "Enable", "off");
+set([handles.OutputPanel, handles.ParameterPanel, handles.EyeTrackerPanel,... 
+    handles.TaskPerformancePanel], "Visible", "off");
 
 % Clear plots
-plot(handles.DataPlot1,0,0,'+k');
-plot(handles.DataPlot2,0,0,'+k');
-plot(handles.DataPlot3,0,0,'+k');
-plot(handles.DataPlot4,0,0,'+k');
+plot(handles.DataPlot1, 0,0, '+k');
+plot(handles.DataPlot2, 0,0, '+k');
+plot(handles.DataPlot3, 0,0, '+k');
+plot(handles.DataPlot4, 0,0, '+k');
 
-% Eye trace needs to be treated differently to maintain important
-% properties
-plot(handles.EyeTrace,0,0,'+k');
-set(handles.EyeTrace,'UserData',15); % 15 degrees of visual arc is default
-
-%****** ADDED VIA SHAUN **********
-%%% SC: eye posn data
-% tell ViewPoint to close the eye posn data file
+% Eye trace needs to be treated differently to maintain important properties
+plot(handles.EyeTrace, 0, 0, '+k');
+set(handles.EyeTrace, 'UserData', 15); % 15 degrees of visual arc is default
 handles.eyetrack.closefile();
-%*************************
 
 % DE-INITIALIZE PROTOCOL (remove screens or objects created on init)
 handles.PR.closeFunc();  % de-initialize any objects
@@ -498,16 +468,15 @@ CondenseAppendedData(hObject, handles)
 sca;
 
 % Save the eye calibration values at closing time to the MarmoViewLastCalib
-c = handles.A.c;
-dx = handles.A.dx;
-dy = handles.A.dy;
-rot = handles.A.rot;
+c = handles.A.c; dx = handles.A.dx; dy = handles.A.dy; rot = handles.A.rot;
 if ~handles.S.DummyEye
-    save([handles.supportPath 'MarmoViewLastCalib.mat'],'c','dx','dy','rot');
+    save([handles.supportPath 'MarmoViewLastCalib.mat'], 'c', 'dx', 'dy', 'rot');
 end
+
+handles.C.c = c; handles.C.dx = dx; handles.C.dy = dy; handles.C.rot = rot;
+
 % Create a structure for A that maintains only basic values required
 % outside the protocol
-handles.C.c = c; handles.C.dx = dx; handles.C.dy = dy; handles.C.rot = rot;
 A = handles.C;
 A.EyeTrace = handles.EyeTrace;
 A.DataPlot1 = handles.DataPlot1;
@@ -518,48 +487,48 @@ A.outputFile = 'none';
 
 % Reset structures
 handles.A = A;
-handles.S = MarmoViewRigSettings;
+handles.S = MarmoViewRigSettings();
 handles.S.subject = handles.outputSubject;
 handles.P = struct;
 handles.SI = handles.S;
 handles.PI = struct;
 % If juicer delivery volume was changed during the previous protocol,
 % return it to default. Also add the juice counter for the juice button.
-% fprintf(handles.A.pump,['0 VOL ' num2str(handles.S.pumpDefVol)]);
-% handles.reward.volume = handles.S.pumpDefVol; % milliliters
 handles.A.juiceVolume = handles.reward.volume;
 handles.A.juiceCounter = 0;
+
 if handles.S.solenoid
-    set(handles.JuiceVolumeText,'String',sprintf('%3i ms',handles.A.juiceVolume*1e3));
+    set(handles.JuiceVolumeText,...
+        'String', sprintf('%3i ms',handles.A.juiceVolume*1e3));
 else
-    set(handles.JuiceVolumeText,'String',sprintf('%3i ul',handles.A.juiceVolume*1e3));
+    set(handles.JuiceVolumeText,... 
+        'String', sprintf('%3i ul',handles.A.juiceVolume * 1e3));
 end
 
 % RE-ENABLE CONTROLS
 set(handles.ChooseSettings,'Enable','On');
 % Initialize is only available if the settings file exists
-handles.settingsFile = get(handles.SettingsFile,'String');
-if ~exist([handles.settingsPath handles.settingsFile],'file')
-    set(handles.Initialize,'Enable','off');
+handles.settingsFile = get(handles.SettingsFile, 'String');
+if ~exist(fullfile(handles.settingsPath, handles.settingsFile), 'file')
+    set(handles.Initialize, 'Enable', 'off');
     tstring = 'Please select a settings file...';
 else
-    set(handles.Initialize,'Enable','on');
+    set(handles.Initialize, 'Enable', 'on');
     tstring = 'Ready to initialize protocol...';
 end
 % Update GUI status
-set(handles.StatusText,'String',tstring);
+set(handles.StatusText, 'String', tstring);
 % For the protocol title, note that no protocol is now loaded
-set(handles.ProtocolTitle,'String','No protocol is loaded.');
+set(handles.ProtocolTitle, 'String', 'No protocol is loaded.');
 % The task light is a neutral gray when no protocol is loaded
-ChangeLight(handles.TaskLight,[.5 .5 .5]);
+ChangeLight(handles.TaskLight, [.5 .5 .5]);
 
-%****** RE-ENABLE THE SUBJECT ENTRY, in case want to change subject and
-%****** continue the program without closing MarmoV6 (should be rare)
-set(handles.OutputPanel,'Visible','On');
-set(handles.OutputPrefixEdit,'Enable','Off');
-set(handles.OutputSubjectEdit,'Enable','On');   %user can edit this!
-set(handles.OutputDateEdit,'Enable','Off');
-set(handles.OutputSuffixEdit,'Enable','Off');
+% RE-ENABLE THE SUBJECT ENTRY, in case want to change subject and continue the 
+% program without closing MarmoV6 (should be rare)
+set(handles.OutputPanel, 'Visible', 'On');
+set([handles.OutputPrefixEdit, handles.OutputDateEdit, handles.OutputSuffixEdit],...
+    'Enable','Off');
+set(handles.OutputSubjectEdit, 'Enable', 'On'); 
 
 % Update handles structure
 guidata(hObject, handles);
@@ -721,9 +690,9 @@ while handles.runTask && A.j <= A.finish
     %******** IMPLEMENT DEFAULT RUN TRIAL HERE DIRECTLY **********
     %***** Note, PR will refer to the PROTOCOL object ************
     if ~handles.runImage
-        [FP,TS] = handles.PR.prep_run_trial();
+        [FP, TS] = handles.PR.prep_run_trial();
     else
-        [FP,TS] = handles.PRI.prep_run_trial();
+        [FP, TS] = handles.PRI.prep_run_trial();
     end
     % load values into class for plotting (FP) and to label TimeSensitive
     % states (TS)
@@ -742,7 +711,7 @@ while handles.runTask && A.j <= A.finish
     end
     %***********************
     tstring = sprintf('TRIALSTART:TRIALNO:%5i %2d %2d %2d %2d %2d %2d',...
-        handles.A.j,STARTCLOCK(1:6));   % code the sixlet
+        handles.A.j, STARTCLOCK(1:6));   % code the sixlet
     handles.eyetrack.sendcommand(tstring);
     %***********************************************************
     if (S.DataPixx)
@@ -791,12 +760,12 @@ while handles.runTask && A.j <= A.finish
         
         % One idea, only deliver drop if there is alot of time before the
         % next screen flush (since drop command takes time)
-        if ( drop > 0)
+        if drop > 0
             holdrop = 1;
             dropreject = 0;
         end
-        if  (holdrop > 0)
-            droptime = GetSecs;
+        if holdrop
+            droptime = GetSecs();
             if ( (droptime-screenTime) < frameTime) || (dropreject > 12)
                 holdrop = 0;
                 rewardtimes = [rewardtimes, droptime];
@@ -820,7 +789,7 @@ while handles.runTask && A.j <= A.finish
             A.dx = handles.A.dx;
             A.dy = handles.A.dy;
             A.rot = handles.A.rot;
-            handles.FC.update_eye_calib(A.c,A.dx,A.dy,A.rot);
+            handles.FC.update_eye_calib(A.c, A.dx, A.dy, A.rot);
         end
         if ~handles.runImage
             runloop = handles.PR.continue_run_trial(screenTime);
@@ -831,7 +800,7 @@ while handles.runTask && A.j <= A.finish
     
     %******** Update eye trace window before ITI start
     ENDCLOCK = handles.FC.last_screen_flip();   % set screen to gray, trial over, start ITI
-    ENDCLOCKTIME = GetSecs;
+    ENDCLOCKTIME = GetSecs();
     %******* the data pix strobe will take about 0.5 ms **********
     if (S.DataPixx)
         datapixx.strobe(62,0);  % send all bits on but first (254) to mark trial end
@@ -840,7 +809,7 @@ while handles.runTask && A.j <= A.finish
     %****** AGAIN this is a place for timing event to synch up trial ends
     % this takes about 2 ms to send VPX command string
     tstring = sprintf('TRIALENDED:TRIALNO:%5i %2d %2d %2d %2d %2d %2d',...
-        handles.A.j,ENDCLOCK(1:6));   % code the sixlet
+        handles.A.j, ENDCLOCK(1:6));   % code the sixlet
     handles.eyetrack.sendcommand(tstring);
     %****** send the rest of the sixlet via DataPixx
     % this sixlet of numbers takes about 2 ms, but not used for time strobe
@@ -851,89 +820,84 @@ while handles.runTask && A.j <= A.finish
     end
     %**********************************************************
     
-    % Any final clean-up for PR in the trial
+    % Any final clean-up for PR in the trial, return duration of iti
     if ~handles.runImage
-        Iti = handles.PR.end_run_trial();  % returns duration of Iti remaining
+        Iti = handles.PR.end_run_trial();  
     else
         Iti = handles.PRI.end_run_trial();
     end
 
+    %* --------------------
+    %* INTER-TRIAL INTERVAL
+    %* ------------------------------------------------------------------------
     
     % PLOT THE EYETRACE and enforce an ITI interval
     itiStart = GetSecs();
     subplot(handles.EyeTrace); hold off;  % clear old plot
     if ~handles.lastRunWasImage
-        handles.PR.plot_trace(handles); hold on; % command to plot on eye traces
+        handles.PR.plot_trace(handles); hold on; 
     else
-        handles.PRI.plot_trace(handles); hold on; % command to plot on eye traces
+        handles.PRI.plot_trace(handles); hold on; 
     end
     handles.FC.plot_eye_trace_and_flips(handles);  %plot the eye traces
 
-    
-    while (GetSecs < (itiStart + Iti))
+    while (GetSecs() < (itiStart + Iti))
         drawnow;   % grab GUI events while running ITI interval
         handles = guidata(hObject);
     end
-    
+
     
     % UPDATE HANDLES FROM ANY CHANGES DURING RUN TRIAL
     guidata(hObject,handles);
     % ALLOW OTHER CALLBACKS INTO THE QUEUE AND UPDATE HANDLES
     pause(.001); handles = guidata(hObject);
     
-    % SKETCH OF MY DATA SOLUTION HERE (I hated that it was passing
-    %                                  a big D struct into functions)
-    %  D should be a struct that stores per trial data (not everything)
-    %    D.P has trial parameters (struct)
-    %    D.eyeData has the eye trace (matrix)
-    %    D.PR has feedback from the protocol (struct)
-    %       if the protocol is complicated (rev cor), this could be large
-    %       for example, might list every stim shown per frame in trial
-    %    D.C has the eye calibration (struct)
-    % ******************************
-    %  In this scenario, the PR.end_plots does not get D at all.
-    %  What does that mean, if your PR wants to plot stats over trials
-    %  then it must store its own internal D with that information in
-    %  a list .... so the experimenter needs to police this function.
-    %  It will get the P struct and A each trial and can update then.
-    
+    % ---------------------
+    % CREATE DATA STRUCTURE
+    % -------------------------------------------------------------------------
     % Some Data is uploaded automatically from Task Controller
-    D = struct;
+    D = struct();
     D.P = P; % THE TRIAL PARAMETERS
     D.STARTCLOCK = STARTCLOCK;
     D.ENDCLOCK = ENDCLOCK;
     D.STARTCLOCKTIME = STARTCLOCKTIME;
     D.ENDCLOCKTIME = ENDCLOCKTIME;
+
     if ~handles.runImage
         %if critical trial info save as D.PR
-        D.PR = handles.PR.end_plots(P,A);  
         D.PR.name = handles.S.protocol;
+        D.PR = handles.PR.end_plots(P,A);  
         if (D.PR.error == 0)
             CorCount = CorCount + 1;
         end
     else
-        D.PR = handles.PRI.end_plots(P,A);
         D.PR.name = 'BackImage';
+        D.PR = handles.PRI.end_plots(P,A);
     end
+
     D.eyeData = handles.FC.upload_eyeData();
     [c,dx,dy,rot] = handles.FC.upload_C();
-    D.c = c;
-    D.dx = dx;
-    D.dy = dy;
-    D.rot = rot;
-    D.rewardtimes = rewardtimes;    % log the time of juice pulses
-    D.juiceButtonCount = handles.A.juiceCounter; % SUPPLEMENTARY JUICE DURING THE TRIAL
-    D.juiceVolume = A.juiceVolume; % THE VOLUME OF JUICE PULSES DURING THE TRIAL
+    D.c = c; D.dx = dx; D.dy = dy; D.rot = rot;
+    % log the time of juice pulses
+    D.rewardtimes = rewardtimes;    
+    % SUPPLEMENTARY JUICE DURING THE TRIAL
+    D.juiceButtonCount = handles.A.juiceCounter; 
+    % THE VOLUME OF JUICE PULSES DURING THE TRIAL
+    D.juiceVolume = A.juiceVolume; 
     
     % -------------
     % SAVE THE DATA
     % ---------------------------------------------------------------------
-    % here is a place to think as well ... what is the best way to save D?
-    % can we append to a Matlab file only those parts news to the trial??
-    cd(handles.outputPath);             % goto output directory
-    Dstring = sprintf('D%d',A.j);       % will store trial data in this variable
+
+    cd(handles.outputPath);             
+    % % will store trial data in this variable
+    Dstring = sprintf('D%d', A.j);   
+    cprintf('*[1 0.2 0.5]', 'eval cmd is %s = D\n', Dstring);    
     eval(sprintf('%s = D;',Dstring));   % set variable
-    save(A.outputFile,'-append','S',Dstring);   % append file
+
+    % append file
+    save(A.outputFile, '-append', 'S', Dstring);   
+
     cd(handles.taskPath);               % return to task directory
     eval(sprintf('clear %s;',Dstring));
     clear D;                 % release the memory for D once saved
@@ -942,9 +906,10 @@ while handles.runTask && A.j <= A.finish
     % Update trial count
     A.j = A.j+1;
     set(handles.TrialCountText, 'String', num2str(A.j-1));
+
     if ~handles.runOneTrial
         A.finish = handles.A.finish;
-        set(handles.TrialMaxText,'String',num2str(A.finish));
+        set(handles.TrialMaxText, 'String', num2str(A.finish));
     end
     
     % Check for updates in juice volume during trial
