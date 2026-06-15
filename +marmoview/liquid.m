@@ -20,7 +20,7 @@ classdef (Abstract) liquid < marmoview.feedback
   end
   
   methods
-    function o = liquid(h,varargin)
+    function o = liquid(h,varargin),
       o = o@marmoview.feedback(h,varargin{:});
     end
   end

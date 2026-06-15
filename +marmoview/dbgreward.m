@@ -7,23 +7,23 @@
 
 % 30-05-2016 - Shaun L. Cloherty <s.cloherty@ieee.org>
 
-classdef dbgreward < marmoview.liquid
-  properties
+classdef dbgreward < marmoview.liquid,
+  properties,
     volume = 0.0;
     soundbit = [];
   end
   
   methods
-    function o = dbgreward(h,varargin)
+    function o = dbgreward(h,varargin),
       o = o@marmoview.liquid(h);
       o.soundbit  = stimuli.sound(h);
     end
     
-    function deliver(o)
+    function deliver(o),
       o.soundbit.deliver();
     end
     
-    function r = report(o)
+    function r = report(o),
       r = struct([]);
     end
   end

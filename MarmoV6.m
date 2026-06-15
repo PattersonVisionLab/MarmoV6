@@ -150,9 +150,9 @@ handles.A.outputFile = 'none';
 % OPEN UP COMMUNICATION WITH THE PUMP FOR REWARD DELIVERY -- THIS IS DONE
 % IMMEDIATELY USING THE RIG SETTINGS, SO THAT JUICE IS AVAILABLE TO THE
 % MARMOSET WHILE NO PROTOCOLS ARE LOADED
-if handles.S.newera % create an @newera object for delivering liquid reward
+if handles.S.newera, % create an @newera object for delivering liquid reward
   handles.reward = marmoview.newera(hObject,'port',S.pumpCom,'diameter',S.pumpDiameter,'volume',S.pumpDefVol,'rate',S.pumpRate);
-else % no syringe pump? use the @dbgreward object object instead
+else, % no syringe pump? use the @dbgreward object object instead
   if handles.S.solenoid
      handles.reward = marmoview.SolenoidControl(S.pumpCom); 
      S.pumpDefVol = handles.reward.volume;
@@ -176,9 +176,9 @@ handles.A.juiceCounter = 0;
 
 %******** ADDED VIA SHAUN ************************
 %******* and then Arrington wrapper by Jude ******
-if handles.S.arrington % create an @arrington eyetrack object for eye position
+if handles.S.arrington, % create an @arrington eyetrack object for eye position
   handles.eyetrack = marmoview.eyetrack_arrington(hObject,'EyeDump',S.EyeDump);
-else % no eyetrack, use @eyetrack object instead that uses mouse pointer
+else, % no eyetrack, use @eyetrack object instead that uses mouse pointer
   handles.eyetrack = marmoview.eyetrack();
 end
 %********************************************************
@@ -265,7 +265,7 @@ else
     handles.settingsFile = 'none';
 end
 % If file exists, then we can get the protocol initialized
-if exist(handles.settingsFile,'file')
+if exist(handles.settingsFile,'file');
     if (strcmp(handles.outputSubject,'none'))
        set(handles.Initialize,'Enable','off');
        tstring = 'Please select SUBJECT NAME >>>';
@@ -386,7 +386,7 @@ set(handles.TrialMaxEdit,'String','');
 % Get strings for the parameters list
 handles.pNames = fieldnames(handles.P);         % pNames are the actual parameter names
 handles.pList = cell(size(handles.pNames,1),1); % pList is the list of parameter names with values
-for i = 1:size(handles.pNames,1)
+for i = 1:size(handles.pNames,1);
     pName = handles.pNames{i};
     tName = sprintf('%s = %2g',pName,handles.P.(pName));
     handles.pList{i,1} = tName;
@@ -964,7 +964,7 @@ while handles.runTask && A.j <= A.finish
     % UPDATE THE PARAMETER LIST TO SHOW THE NEXT TRIAL PARAMETERS
     % NOTE, if running background image it is not listing the params
     %  but rather than main protocols params, in P struct, not PI struct
-    for i = 1:size(handles.pNames,1)
+    for i = 1:size(handles.pNames,1);
         pName = handles.pNames{i};
         tName = sprintf('%s = %2g',pName,handles.P.(pName));
         handles.pList{i,1} = tName;
@@ -999,7 +999,7 @@ handles.stopTask = false;
 
 % UPDATE THE PARAMETERS LIST IN CASE OF ANY CHANGES MADE AFTER RUNNING THE
 % END TRIAL COMMAND
-for i = 1:size(handles.pNames,1)
+for i = 1:size(handles.pNames,1);
     pName = handles.pNames{i};
     tName = sprintf('%s = %2g',pName,handles.P.(pName));
     handles.pList{i,1} = tName;

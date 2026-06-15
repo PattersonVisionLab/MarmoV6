@@ -24,32 +24,32 @@ classdef patchdots < handle
   
   % 14-06-2016 - Shaun L. Cloherty <s.cloherty@ieee.org>
   
-  properties (Access = public)
-    size            double; % pixels
-    speed           double; % pixels/s
-    bspeed          double; % pixels/s
-    direction       double; % radians (?)
-    numDots         double;
-    coherence       double; % pcnt coherence (0-1)
-    mode            double; % 0 = proportion, 1 = distribution
-    dist            double; % 0 = gaussian, 1 = uniform
-    bandwdth        double; % width of gaussian/uniform noise.
-    lifetime        double; % dot lifetime (frames)
+  properties (Access = public),
+    size@double; % pixels
+    speed@double; % pixels/s
+    bspeed@double; % pixels/s
+    direction@double; % radians (?)
+    numDots@double;
+    coherence@double; % pcnt coherence (0-1)
+    mode@double; % 0 = proportion, 1 = distribution
+    dist@double; % 0 = gaussian, 1 = uniform
+    bandwdth@double; % width of gaussian/uniform noise.
+    lifetime@double; % dot lifetime (frames)
 %     minRadius@double; % minimum radius (pixels)
     truncateGauss = -1;
-    maxRadius       double; % maximum radius (pixels)
-    Xtop            double; % max X (pixels)
-    Xbot            double; % min X (pixels)
-    Ytop            double; % max Y (pixels)
-    Ybot            double; % min Y (pixels)
+    maxRadius@double; % maximum radius (pixels)
+    Xtop@double; % max X (pixels)
+    Xbot@double; % min X (pixels)
+    Ytop@double; % max Y (pixels)
+    Ybot@double; % min Y (pixels)
     PatchRef = [];  % list which dots are in patch (for color)
     PatchColor = 0;  % if zero, same as other dots
     BackColor = 0;
-    position        double; % aperture position (x,y; pixels)
-    colour          double;
+    position@double; % aperture position (x,y; pixels)
+    colour@double;
     bkgd = 127;  % background gray
-    visible         logical = true; % are the dots visible
-    gaussian        logical = false;
+    visible@logical = true; % are the dots visible
+    gaussian@logical = false;
     %*****
     updateCount = 0;  % count updates (BeforeFrame) calls
     HistoryCnt = 0;  % count log changes, catalog the frame they occur
@@ -90,12 +90,12 @@ classdef patchdots < handle
   end
   
   methods (Access = public)
-    function o = patchdots(winPtr,varargin) % marmoview's initCmd
+    function o = patchdots(winPtr,varargin), % marmoview's initCmd
       o.winPtr = winPtr;
       
       o.myrand = RandStream('twister','Seed',randi(1000));
       
-      if nargin == 1
+      if nargin == 1,
         return
       end
 
@@ -104,28 +104,28 @@ classdef patchdots < handle
       p = inputParser;
 %       p.KeepUnmatched = true;
       p.StructExpand = true;
-      p.addParameter('size',10.0,@double); % pixels?
-      p.addParameter('bspeed',0.2,@double); % deg./s
-      p.addParameter('speed',0.2,@double); % deg./s
-      p.addParameter('direction',0.0,@(x) isscalar(x) && isreal(x)); % deg.
-      p.addParameter('numDots',200,@(x) ceil(x));
+      p.addParamValue('size',10.0,@double); % pixels?
+      p.addParamValue('bspeed',0.2,@double); % deg./s
+      p.addParamValue('speed',0.2,@double); % deg./s
+      p.addParamValue('direction',0.0,@(x) isscalar(x) && isreal(x)); % deg.
+      p.addParamValue('numDots',200,@(x) ceil(x));
 
-      p.addParameter('mode',0,@(x) any(ismember(x,[0, 1]))); % 0 = proportion, 1 = distribution      
+      p.addParamValue('mode',0,@(x) any(ismember(x,[0, 1]))); % 0 = proportion, 1 = distribution      
 
       % mode = 0
-      p.addParameter('coherence',1.0,@(x) isscalar(x) && isreal(x)); % 0..1
+      p.addParamValue('coherence',1.0,@(x) isscalar(x) && isreal(x)); % 0..1
       
       % mode = 1
-      p.addParameter('dist',0,@(x) any(ismember(x,[0, 1]))); % 0 = gaussian, 1 = uniform
-      p.addParameter('bandwdth',20.0,@(x) isscalar(x) && isreal(x)); % bandwidth (deg.)
+      p.addParamValue('dist',0,@(x) any(ismember(x,[0, 1]))); % 0 = gaussian, 1 = uniform
+      p.addParamValue('bandwdth',20.0,@(x) isscalar(x) && isreal(x)); % bandwidth (deg.)
 
       
-      p.addParameter('lifetime',Inf,@double);
+      p.addParamValue('lifetime',Inf,@double);
 
 %       p.addParamValue('minRadius',0.0,@double); % deg.?
-      p.addParameter('maxRadius',10.0,@double);
+      p.addParamValue('maxRadius',10.0,@double);
 
-      p.addParameter('position',[0.0,0.0],@(x) isvector(x) && isreal(x)); % [x,y] (pixels)
+      p.addParamValue('position',[0.0,0.0],@(x) isvector(x) && isreal(x)); % [x,y] (pixels)
       
       p.addParameter('colour',[1,0,0],@double);
       p.addParameter('visible',true,@islogical);
@@ -133,7 +133,7 @@ classdef patchdots < handle
       
       try
         p.parse(args{:});
-      catch
+      catch,
         warning('Failed to parse name-value arguments.');
         return;
       end
@@ -220,7 +220,7 @@ classdef patchdots < handle
        %******
     end
     
-    function correct_motion_offset(o,kp,gain)
+    function correct_motion_offset(o,kp,gain),
        %*** correct for mean motion in aperture
            di = o.Patch{kp}(4); % motion direction
            if ~isnan(di)
@@ -232,7 +232,7 @@ classdef patchdots < handle
     end
     
     %***** NOTE, all random function calls occur in this function
-    function beforeTrial(o)  
+    function beforeTrial(o),  
       o.History = [];  % reset the history to zero
       o.HistoryCnt = 0;
       o.updateCount = 0;
@@ -243,11 +243,11 @@ classdef patchdots < handle
       o.initDots([1:o.numDots]); % all dots!
     end
     
-    function beforeFrame(o)
+    function beforeFrame(o),
       o.drawDots();
     end
         
-    function afterFrame(o)
+    function afterFrame(o),
       % decrement frame counters
       o.frameCnt = o.frameCnt - 1;
       o.moveDots();
@@ -255,13 +255,13 @@ classdef patchdots < handle
       o.updateCount = o.updateCount + 1;
     end
     
-    function CloseUp(o)
+    function CloseUp(o),
     end
     
   end % methods
     
   methods (Access = public)        
-    function initDots(o,idx)
+    function initDots(o,idx),
 
       % all random functions occur here, so in principle, you can
       % reconstruct the stimulus if you know the rand seed at the
@@ -280,7 +280,7 @@ classdef patchdots < handle
           % initialise dots' lifetime
           if ( o.lifetime ~= Inf)  % if new trial reset lifetimes
               o.frameCnt = o.myrand.randi(o.lifetime,o.numDots,1); % 1:numDots
-          else
+          else,
               o.frameCnt = inf(o.numDots,1);
           end
       else
@@ -318,9 +318,9 @@ classdef patchdots < handle
       
       o.dx(idx) = dx;
       o.dy(idx) = dy;  
-      switch o.mode
-        case 0 % proportion of dots
-          if o.coherence == 1.0
+      switch o.mode,
+        case 0, % proportion of dots
+          if o.coherence == 1.0,
             return;
           end
           
@@ -328,7 +328,7 @@ classdef patchdots < handle
           
           % set displacements for the dots moving incoherently
           idx_ = idx(idx > nc);
-          if o.coherence == 0.0 || ~isempty(idx)
+          if o.coherence == 0.0 || ~isempty(idx),
             direction = o.myrand.rand(size(idx)).*360.0; % deg.
 
             [dx,dy] = pol2cart(direction*(pi/180),o.speed);
@@ -336,18 +336,18 @@ classdef patchdots < handle
             o.dy(idx) = dy;
           end
                             
-        case 1 % directions sampled from some distribution
-          switch o.dist
-            case 0  % gaussian
+        case 1, % directions sampled from some distribution
+          switch o.dist,
+            case 0,  % gaussian
               phi = o.bandwdth.*randn(n,1);
               if o.truncateGauss ~= -1
                 a = abs(direction/o.bandwdth) > o.truncateGauss;
-                while max(a)
+                while max(a),
                   phi(a) = o.bandwdth .* o.myrand.randn(sum(a),1);
                   a = abs(phi(idx)/o.bandwdth) > o.truncateGauss;
                 end
               end
-            case 1 % uniform
+            case 1, % uniform
               phi = o.bandwdth .* o.myrand.rand(n,1) - o.bandwdth/2;
             otherwise
               error('Unknown noiseDist');
@@ -402,21 +402,21 @@ classdef patchdots < handle
     end
     
     
-    function ret = getstate(o)
+    function ret = getstate(o),
         ret = o.myrand.State';    %store the state of random number gen 
     end
     
-    function setstate(o,State)
+    function setstate(o,State),
         o.myrand.State = State';
     end
     
     %****** returns a 4N vector, where N is the number of dots, and
     %****** it includes in order:  x pos, y pos, delta x, delta y
-    function ret = getbigstate(o)
+    function ret = getbigstate(o),
         ret = [o.x  o.y  o.dx  o.dy double(o.PatchRef)];
     end
     
-    function moveDots(o) 
+    function moveDots(o), 
       % calculate future position
       x = o.x + o.dx;
       y = o.y + o.dy;
@@ -440,7 +440,7 @@ classdef patchdots < handle
          idx = find(r > o.maxRadius); % dots that have exited the aperture   
          o.x = x;
          o.y = y;
-         if ~isempty(idx)
+         if ~isempty(idx),
             % (re-)place the dots on the other side of the aperture
             [th,~] = cart2pol(o.dx(idx),o.dy(idx));
             [xx, yy] = o.rotate(o.x(idx),o.y(idx),-1*th);
@@ -452,13 +452,13 @@ classdef patchdots < handle
       
       idx = find(o.frameCnt == 0); % dots that have exceeded their lifetime
       
-      if ~isempty(idx)
+      if ~isempty(idx),
         % (re-)place dots randomly within the aperture
         o.initDots(idx);
       end
     end
     
-    function drawDots(o)      
+    function drawDots(o),      
       dotColour = o.colour; %zeros([1,3]); %repmat(0,1,3);
       
       % dotType:
@@ -503,7 +503,7 @@ classdef patchdots < handle
       end
       %******************
       
-      if o.visible
+      if o.visible,
         Screen('DrawDots',o.winPtr,[o.x(:), -1*o.y(:)]', o.size, colmat', o.position, dotType);
       end
       
@@ -514,7 +514,7 @@ classdef patchdots < handle
     function [xx, yy] = rotate(x,y,th)
       % rotate (x,y) by angle th
 
-      for ii = 1:length(th)
+      for ii = 1:length(th),
         % calculate rotation matrix
         R = [cos(th(ii)) -sin(th(ii)); ...
              sin(th(ii))  cos(th(ii))];

@@ -15,12 +15,12 @@ classdef eyetrack < handle
   end
 
   methods
-    function o = eyetrack_arrington(h,varargin) % h is the handle for the marmoview gui
+    function o = eyetrack_arrington(h,varargin), % h is the handle for the marmoview gui
 
       % initialise input parser
       args = varargin;
       p = inputParser;
-      p.addParameter('EyeDump',true,@islogical); % default 1, do EyeDump
+      p.addParamValue('EyeDump',true,@islogical); % default 1, do EyeDump
       p.parse(varargin{:});
 
       args = p.Results;  
@@ -29,29 +29,29 @@ classdef eyetrack < handle
       % configure the tracker and initialize...  
     end
 
-    function startfile(o,handles)   
+    function startfile(o,handles),   
         % no file is saved if using mouse
     end
 
-    function closefile(o)        
+    function closefile(o),        
     end
 
-    function unpause(o)    
+    function unpause(o),    
     end
 
-    function pause(o)    
+    function pause(o),    
     end
 
-    function [x,y] = getgaze(o)
+    function [x,y] = getgaze(o),
         [x,y] = GetMouse;
         %other specs depend on screen and position
     end
     
-    function r = getpupil(o)
+    function r = getpupil(o),
         r = 1.0;
     end
     
-    function sendcommand(o,tstring)
+    function sendcommand(o,tstring),
     end
     
   end % methods

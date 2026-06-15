@@ -15,7 +15,7 @@ classdef fixation_JM < handle
   
   % 16-06-2016 - Shaun L. Cloherty <s.cloherty@ieee.org>
   
-  properties (Access = public)
+  properties (Access = public),
     cSize = 2; % pixels
     sSize = 4; % pixels
     oSize = 8;
@@ -30,10 +30,10 @@ classdef fixation_JM < handle
   end
   
   methods (Access = public)
-    function o = fixation_JM(winPtr,varargin) % marmoview's initCmd?
+    function o = fixation_JM(winPtr,varargin), % marmoview's initCmd?
       o.winPtr = winPtr;
       
-      if nargin == 1
+      if nargin == 1,
         return
       end
 
@@ -41,16 +41,16 @@ classdef fixation_JM < handle
       args = varargin;
       p = inputParser;
       p.StructExpand = true;
-      p.addParameter('centreSize',o.cSize,@isfloat); % pixels
-      p.addParameter('surroundSize',o.sSize,@isfloat);
-      p.addParameter('centreColour',o.cColour,@isfloat); % clut index or [r,g,b]
-      p.addParameter('surroundColour',o.sColour,@isfloat);
-      p.addParameter('surroundColourBlack',o.sbColour,@isfloat);
-      p.addParameter('position',o.position,@isfloat); % [x,y] (pixels)
+      p.addParamValue('centreSize',o.cSize,@isfloat); % pixels
+      p.addParamValue('surroundSize',o.sSize,@isfloat);
+      p.addParamValue('centreColour',o.cColour,@isfloat); % clut index or [r,g,b]
+      p.addParamValue('surroundColour',o.sColour,@isfloat);
+      p.addParamValue('surroundColourBlack',o.sbColour,@isfloat);
+      p.addParamValue('position',o.position,@isfloat); % [x,y] (pixels)
                   
       try
         p.parse(args{:});
-      catch
+      catch,
         warning('Failed to parse name-value arguments.');
         return;
       end
@@ -65,25 +65,25 @@ classdef fixation_JM < handle
       o.position = args.position;
     end
         
-    function beforeTrial(o)
+    function beforeTrial(o),
     end
     
-    function beforeFrame(o,state)
+    function beforeFrame(o,state),
       o.drawFixation(state);
     end
         
-    function afterFrame(o)
+    function afterFrame(o),
     end
     
-    function updateTextures(o)
+    function updateTextures(o),
     end
     
-    function CloseUp(o)
+    function CloseUp(o),
     end
   end % methods
     
   methods (Access = public)        
-    function drawFixation(o,state)
+    function drawFixation(o,state),
         
       if (state == 1)    %normal black center, white outline  
          r = floor(o.sSize./2); % radius in pixels

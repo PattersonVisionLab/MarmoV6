@@ -211,7 +211,7 @@ classdef PR_PursuitEvaders < handle
         end
     end
     
-    function P = next_trial(o,S,P)
+    function P = next_trial(o,S,P);
           %********************
           o.S = S;
           o.P = P;   
@@ -370,12 +370,12 @@ classdef PR_PursuitEvaders < handle
        %*******
        
        switch o.state
-           case 5  % using 5th state as a wait before end trial
+           case 5,  % using 5th state as a wait before end trial
                %****** wait a pause before go to next trial
                if ((currentTime - o.startSearch) > o.waitSearch)
                      o.state = 6;
                end
-           case 0  % waiting to start on fixation
+           case 0,  % waiting to start on fixation
                %****** wait a random time to reappear target for search
                o.holdfixStart = 0;
                if isnan(o.waitSearch)
@@ -389,7 +389,7 @@ classdef PR_PursuitEvaders < handle
                  %****      
                  o.conEvents = [o.conEvents ; [2, currentTime]];  % value one indicates visible
                end
-           case 1   % holding in fixation
+           case 1,   % holding in fixation
                if (fixdist < o.P.fixRadius) 
                    if ~o.holdfixStart
                        o.holdfixStart = currentTime;
@@ -400,7 +400,7 @@ classdef PR_PursuitEvaders < handle
                else
                   o.holdfixStart = 0;
                end
-           case 2        % initial pursuit to establish trial going
+           case 2,        % initial pursuit to establish trial going
               %******** 
               o.holdfixStart = 0;  % make sure this is reset
               o.showFix = 1;
@@ -483,7 +483,7 @@ classdef PR_PursuitEvaders < handle
 
                  end            
               end
-           case 3  %pursuing on-line
+           case 3,  %pursuing on-line
               %******** 
               o.holdfixStart = 0;  % make sure this is reset
               o.showFix = 1;
@@ -510,7 +510,7 @@ classdef PR_PursuitEvaders < handle
                 o.ExtraJuice = 0;
                 % o.waitSearch = rand * o.P.reappearGap;
               end
-           case 4   % giving reward with face
+           case 4,   % giving reward with face
                % [currentTime-o.rewardStart,o.P.gaborReward]
                if ( (currentTime - o.rewardStart) > o.P.gaborReward)
                   o.state = 5;  % don't restart, go to end state
@@ -657,10 +657,10 @@ classdef PR_PursuitEvaders < handle
           xE = errors(1,:);
           yE = 0.15*max(ylim);
           h = [];
-          for ii = 1:size(errors,2)
+          for ii = 1:size(errors,2),
             axes(A.DataPlot1);
             h(ii) = text(xE(ii),yE,sprintf('%i',errors(2,ii)),'HorizontalAlignment','Center');
-                if errors(2,ii) > 2*yE
+                if errors(2,ii) > 2*yE,
                     set(h(ii),'Color','w');
                 end
           end

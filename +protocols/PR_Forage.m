@@ -4,7 +4,7 @@ classdef PR_Forage < handle
   % The class constructor can be called with a range of arguments:
   %
  
-  properties (Access = public) 
+  properties (Access = public), 
        Iti   = 1;             % default Iti duration
        startTime   = 0;       % trial start time
        itiStart   = 0;        % start of iti interval
@@ -66,7 +66,7 @@ classdef PR_Forage < handle
         state = o.state;
     end
     
-    function initFunc(o,S,P)
+    function initFunc(o,S,P);
   
        %********** Set-up for trial indexing (required) 
        cors = [0,4];  % count these errors as correct trials
@@ -335,7 +335,7 @@ classdef PR_Forage < handle
        
     end
    
-    function closeFunc(o)
+    function closeFunc(o),
         o.Faces.CloseUp();
         for kk = 1:o.probeNum
            o.hProbe{kk}.CloseUp();
@@ -388,7 +388,7 @@ classdef PR_Forage < handle
         %**************
     end
     
-    function P = next_trial(o,S,P)
+    function P = next_trial(o,S,P);
           %********************
           o.S = S;
           o.P = P;

@@ -19,9 +19,9 @@ PsychImaging('AddTask','FinalFormatting','DisplayColorCorrection','SimpleGamma')
 
 % create the ptb window...
 if isfield(S,'DummyScreen') && S.DummyScreen
-  [A.window, A.screenRect] = PsychImaging('OpenWindow',0,S.bgColour,S.screenRect);
+  [A.window A.screenRect] = PsychImaging('OpenWindow',0,S.bgColour,S.screenRect);
 else    
-  [A.window, A.screenRect] = PsychImaging('OpenWindow',S.screenNumber,S.bgColour);
+  [A.window A.screenRect] = PsychImaging('OpenWindow',S.screenNumber,S.bgColour);
   % Add gamma correction
   PsychColorCorrection('SetEncodingGamma',A.window,1/S.gamma);
 end

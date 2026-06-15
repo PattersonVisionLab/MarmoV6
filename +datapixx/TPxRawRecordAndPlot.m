@@ -11,7 +11,7 @@ Screen('Preference', 'SkipSyncTests', 1);
 
 %% Step 1 -- Open the screen and show the eye.
 Datapixx('Open');
-Datapixx('SetLedIntensity', 8);
+Datapixx('SetLedIntensity', 8); 
 Datapixx('SetTPxAwake');
 Datapixx('SetExpectedIrisSizeInPixels', 115)
 Datapixx('RegWrRd');
@@ -24,13 +24,13 @@ Screen('TextSize', windowPtr, 24);
 i = 0;
 while (1)
 
-
-if ((t2 - t) > 1/60)
+    
+if ((t2 - t) > 1/60) 
     Datapixx('RegWrRd');
     image = Datapixx('GetEyeImage');
     textureIndex=Screen('MakeTexture', windowPtr, image');
     Screen('DrawTexture', windowPtr, textureIndex);
-    DrawFormattedText(windowPtr, 'Press Enter once the Eye are Focused', 'center', 700, 255);
+    DrawFormattedText(windowPtr, 'Press Enter once the Eye are Focused', 'center', 700, 255); 
     Screen('Flip', windowPtr);
     t = t2;
 else
@@ -66,14 +66,14 @@ recording = 0;
 start_time = 0;
 while (1)
 
-
-if ((t2 - t) > 1)
+    
+if ((t2 - t) > 1) 
     Datapixx('RegWrRd');
     i = i + 1;
     %Screen('DrawDots', windowPtr, xy, size, color,[], 0);
     Screen('DrawDots', windowPtr, [xy(:,mod(i,4)+1) xy(:,mod(i,4)+1)], [30;10]', [255 255 255; 0 0 0]', [], 0);
     if ~recording
-        DrawFormattedText(windowPtr, 'Press enter when ready to record', 'center', 80, 255);
+        DrawFormattedText(windowPtr, 'Press enter when ready to record', 'center', 80, 255); 
     end
     Screen('Flip', windowPtr);
     t = t2;
@@ -97,7 +97,7 @@ end
             start_time = Datapixx('GetTime');
         end
     end
-
+    
     if (recording == 1)
         Datapixx('RegWrRd');
         curr_time = Datapixx('GetTime');
@@ -112,28 +112,28 @@ end
 
 % Screen('DrawDots', windowPtr, xy, size, color,[], 1);
 % Screen('Flip', windowPtr);
-
+    
 WaitSecs(1.0);
 %% Step 3 -- Recording
 
 % Datapixx('SetupTPxSchedule');
 % Datapixx('RegWrRd');
-%
+% 
 
-DrawFormattedText(windowPtr, 'Analyzing Data...Please wait', 'center', 80, 255);
+DrawFormattedText(windowPtr, 'Analyzing Data...Please wait', 'center', 80, 255); 
 Screen('Flip', windowPtr);
 
 
 % Datapixx('GetTPxStatus')
 % Datapixx('RegWrRd');
-%
+% 
 % Datapixx('StartTPxSchedule');
 % Datapixx('RegWrRd');
 % start_time = Datapixx('GetTime');
 % % fprintf('Recording started at %f', l);
 % % Datapixx('GetTPxStatus')
 % WaitSecs(4.0);
-% %
+% % 
 % Datapixx('StopTPxSchedule');
 % Datapixx('RegWrRd');
 % finish_time = Datapixx('GetTime');

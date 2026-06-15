@@ -4,7 +4,7 @@ classdef PR_AcuityAsh < handle
   % The class constructor can be called with a range of arguments:
   %
   
-  properties (Access = public) 
+  properties (Access = public), 
        Iti   = 1;            % default Iti duration
        startTime   = 0;      % trial start time
        fixStart   = 0;       % fix acquired time
@@ -100,7 +100,7 @@ classdef PR_AcuityAsh < handle
          %*********************
     end
    
-    function closeFunc(o)
+    function closeFunc(o),
         o.hFix.CloseUp();
         o.hProbe.CloseUp();
         for k = 1:length(o.hChoice) 

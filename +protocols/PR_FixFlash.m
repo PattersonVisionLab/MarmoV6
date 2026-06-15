@@ -4,7 +4,7 @@ classdef PR_FixFlash < handle
   % The class constructor can be called with a range of arguments:
   %
   
-  properties (Access = public) 
+  properties (Access = public), 
        Iti   = 1;            % default Iti duration
        startTime   = 0;      % trial start time
        fixStart   = 0;       % fix acquired time
@@ -50,7 +50,7 @@ classdef PR_FixFlash < handle
         state = o.state;
     end
     
-    function initFunc(o,S,P)
+    function initFunc(o,S,P);
  
         o.Faces = stimuli.gaussimages(o.winPtr,'bkgd',S.bgColour,'gray',false);   % color images
         o.Faces.loadimages('./SupportData/MarmosetFaceLibrary.mat');
@@ -106,7 +106,7 @@ classdef PR_FixFlash < handle
         %*********************
     end
    
-    function closeFunc(o)
+    function closeFunc(o),
         o.Faces.CloseUp();
         o.hFix.CloseUp();
         for k = 1:length(o.hGabor) 
@@ -118,7 +118,7 @@ classdef PR_FixFlash < handle
            % nothing for this protocol
     end
     
-    function P = next_trial(o,S,P)
+    function P = next_trial(o,S,P);
           %********************
           o.S = S;
           o.P = P;      
@@ -386,10 +386,10 @@ classdef PR_FixFlash < handle
         y = 0.15*max(ylim);
 
         h = [];
-        for ii = 1:size(errors,2)
+        for ii = 1:size(errors,2),
           axes(A.DataPlot1);
           h(ii) = text(x(ii),y,sprintf('%i',errors(2,ii)),'HorizontalAlignment','Center');
-          if errors(2,ii) > 2*y
+          if errors(2,ii) > 2*y,
             set(h(ii),'Color','w');
           end
         end

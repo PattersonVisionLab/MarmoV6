@@ -20,7 +20,7 @@ classdef (Abstract) feedback < handle
   end % properties
   
   methods (Access = public)
-    function o = feedback(h,varargin)
+    function o = feedback(h,varargin),
       o.h = h;
     end
     

@@ -13,22 +13,22 @@ classdef agrating < handle
   
   % 14-08-2018 - Jude Mitchell
   
-  properties (Access = public)
-    position        double = [0.0, 0.0]; % [x,y] (pixels)
-    radius          double = 50; % (pixels)
-    orientation     double = 0;  % horizontal
-    cpd             double = 2; % cycles per degree
-    cpd2            double = NaN; % default not used, else composite stim
-    phase           double = 0;  % (radians)
-    square          logical = false;  
-    ring            logical = false;
-    bkgd            double = 127;  
-    range           double = 127;
-    gauss           logical = true;  %gaussian aperture
-    aspect          double = 1;  % length along line with aspect > 1
-    transparent     double = 0.5;  % from 0 to 1, how transparent
-    pixperdeg       double = 0;  % set non-zero to use for CPD computation
-    screenRect             = [];   % if radius Inf, then fill whole area
+  properties (Access = public),
+    position@double = [0.0, 0.0]; % [x,y] (pixels)
+    radius@double = 50; % (pixels)
+    orientation@double = 0;  % horizontal
+    cpd@double = 2; % cycles per degree
+    cpd2@double = NaN; % default not used, else composite stim
+    phase@double = 0;  % (radians)
+    square@logical = false;  
+    ring@logical = false;
+    bkgd@double = 127;  
+    range@double = 127;
+    gauss@logical = true;  %gaussian aperture
+    aspect@double = 1;  % length along line with aspect > 1
+    transparent@double = 0.5;  % from 0 to 1, how transparent
+    pixperdeg@double = 0;  % set non-zero to use for CPD computation
+    screenRect = [];   % if radius Inf, then fill whole area
   end
         
   properties (Access = private)
@@ -45,7 +45,7 @@ classdef agrating < handle
       o.texRect = [];
       o.goRect = [];
       
-      if nargin == 1
+      if nargin == 1,
         return
       end
 
@@ -210,7 +210,7 @@ classdef agrating < handle
        end
     end
     
-    function CloseUp(o)
+    function CloseUp(o),
        if ~isempty(o.tex)
            Screen('Close',o.tex);
            o.tex = [];
