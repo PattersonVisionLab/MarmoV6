@@ -232,7 +232,7 @@ classdef PR_AcuityAsh < handle
         end
         
         function keepgoing = continue_run_trial(obj, screenTime)
-            cprintf('_[1,0.7,0.5]', '\tProtocol, call continueRunTrial\n');
+%            cprintf('_[1,0.7,0.5]', '\tProtocol, call continueRunTrial\n');
             keepgoing = 0;
             if (obj.state < 9)
                 keepgoing = 1;
@@ -503,7 +503,7 @@ classdef PR_AcuityAsh < handle
         function plot_trace(o,handles)
             % This function plots the eye trace from a trial in the EyeTracker
             % window of MarmoView.
-            
+            tic
             h = handles.EyeTrace;
             % Fixation window
             set(h,'NextPlot','Replace');
@@ -527,6 +527,7 @@ classdef PR_AcuityAsh < handle
             r = o.P.radius;
             plot(h,stimX+r*cos(0:.01:1*2*pi),stimY+r*sin(0:.01:1*2*pi),'-k');
             axis(h,[-eyeRad eyeRad -eyeRad eyeRad]);
+            fprintf('---\nplot_trace took %.4f secs\n---\n', toc);
         end
         
         function PR = end_plots(obj, P, A)   

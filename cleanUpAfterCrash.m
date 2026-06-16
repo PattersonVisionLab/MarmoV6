@@ -16,7 +16,7 @@ function cleanUpAfterCrash()
     end
 
     if tpx.newBufferFrames > 0
-        [bufferData, ~, ~] = Datapixx('ReadTPxData', tpx.newBufferFrames);
+        Datapixx('ReadTPxData', tpx.newBufferFrames);
     end
 
 

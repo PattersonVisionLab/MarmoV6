@@ -289,7 +289,7 @@ cprintf('_[0.5,0.1,0.6]', '\tMV6, callback Initialize\n');
 % Update GUI status
 set(handles.StatusText,'String','Initializing...');
 % The task light is blue only during protocol initialization
-ChangeLight(handles.TaskLight,[.2 .2 1]);
+ChangeLight(handles.TaskLight, [.2 .2 1]);
 
 
 % TURN OFF BUTTONS TO PREVENT FIDDLING DURING INITIALIZATION
@@ -404,6 +404,7 @@ set([handles.Background_Image, handles.Calib_Screen], 'Enable', 'on');
 set([handles.GraphZoomIn, handles.GraphZoomOut], 'Enable', 'on');
 
 %*******Blank the eyetrace plot
+tic
 h = handles.EyeTrace;
 eyeRad = handles.eyeTraceRadius;
 set(h,'NextPlot','Replace');
@@ -412,6 +413,7 @@ set(h,'NextPlot','Add');
 plot(h,[-eyeRad eyeRad],[0 0],'--','Color',[.5 .5 .5]);
 plot(h,[0 0],[-eyeRad eyeRad],'--','Color',[.5 .5 .5]);
 axis(h,[-eyeRad eyeRad -eyeRad eyeRad]);
+fprintf('---\nEYETRACE BLANK = %.4f\n---\n', toc);
 %*************************
 
 if handles.S.DummyEye
@@ -868,8 +870,7 @@ while handles.runTask && A.j <= A.finish
     D.STARTCLOCK = STARTCLOCK;
     D.ENDCLOCK = ENDCLOCK;
     D.STARTCLOCKTIME = STARTCLOCKTIME;
-    D.ENDCLOCKTIME = ENDCLOCKTIME;
-    
+    D.ENDCLOCKTIME = ENDCLOCKTIME;    
 
     if ~handles.runImage
         %if critical trial info save as D.PR
@@ -959,8 +960,6 @@ while handles.runTask && A.j <= A.finish
     %************************************
     
     % UPDATE THE PARAMETER LIST TO SHOW THE NEXT TRIAL PARAMETERS
-    % NOTE, if running background image it is not listing the params
-    %  but rather than main protocols params, in P struct, not PI struct
     for i = 1:size(handles.pNames,1)
         pName = handles.pNames{i};
         tName = sprintf('%s = %2g',pName,handles.P.(pName));
@@ -970,11 +969,11 @@ while handles.runTask && A.j <= A.finish
     
     % UPDATE THE HANDLES STRUCTURE FROM ALL OF THESE CHANGES
     guidata(hObject,handles);
-    % ALLOW OTHER CALLBACKS INTO THE THE QUEUE. IF PARAMETERS ARE CHANGED
-    % BY CHANCE THIS LATE IN THE LOOP, THEY WILL NOT BE CHANGED UNTIL
-    % REACHING THE END OF THE NEXT TRIAL, BECAUSE P HAS ALREADY BEEN
-    % ESTABLISHED FOR THE NEXT TRIAL. IF YOU EXIT THE LOOP, THOUGH, THEN P
-    % WILL BE UPDATED BY ANY CHANGES TO THE HANDLES
+    % ALLOW OTHER CALLBACKS INTO THE THE QUEUE. IF PARAMETERS ARE CHANGED BY
+    % CHANCE THIS LATE IN THE LOOP, THEY WILL NOT BE CHANGED UNTIL REACHING THE
+    % END OF THE NEXT TRIAL, BECAUSE P HAS ALREADY BEEN ESTABLISHED FOR THE
+    % NEXT TRIAL. IF YOU EXIT THE LOOP, THOUGH, THEN P WILL BE UPDATED BY WILL 
+    % BE UPDATED BY ANY CHANGES TO THE HANDLES
     pause(.001); handles = guidata(hObject);
     
     % STOP RUN TASK IF SET TO DO SO
@@ -1025,7 +1024,6 @@ guidata(hObject,handles);
 
 % STOP THE TRIAL LOOP ONCE THE CURRENT TRIAL HAS COMPLETED
 function PauseTrial_Callback(hObject, eventdata, handles)
-cprintf('_[0.5,0.1,0.6]', '\tMV6, callback ChooseSettings\n');
 % Pause button can also act as an unpause button
 if ~handles.stopTask
     handles.stopTask = true;
@@ -1038,7 +1036,6 @@ guidata(hObject,handles);
 
 % GIVE A JUICE REWARD
 function GiveJuice_Callback(hObject, eventdata, handles)
-cprintf('_[0.5,0.1,0.6]', '\tMV6, callback GiveJuice\n');
 handles.reward.deliver();
 handles.A.juiceCounter = handles.A.juiceCounter + 1;
 guidata(hObject,handles);
@@ -1048,7 +1045,6 @@ function JuiceVolumeEdit_CreateFcn(hObject, eventdata, handles) %#ok<*INUSD>
 
 % CHANGE THE SIZE OF THE JUICE REWARD TO BE DELIVERED
 function JuiceVolumeEdit_Callback(hObject, eventdata, handles)
-cprintf('_[0.5,0.1,0.6]', '\tMV6, callback EditJuiceVolume\n');
 vol = get(hObject,'String'); % volume is entered in microliters!!
 volML = str2double(vol)/1e3; % milliliters
 handles.reward.volume = volML; % milliliters
@@ -1064,7 +1060,6 @@ guidata(hObject,handles);
 
 % RESETS THE DISPLAY SCREEN IF IT WAS INTERUPTED (BY E.G. ALT-TAB)
 function FlipFrame_Callback(hObject, eventdata, handles)
-cprintf('_[0.5,0.1,0.6]', '\tMV6, callback FlipFrame\n');
 % If a bkgd parameter exists, flip frame with background color value
 if isfield(handles.P, 'bkgd')
     Screen('FillRect', handles.A.window, uint8(handles.P.bkgd));
@@ -1075,7 +1070,6 @@ Screen('Flip', handles.A.window);
 %%%%% PARAMETER CONTROL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function Parameters_CreateFcn(hObject, eventdata, handles)
 function Parameters_Callback(hObject, eventdata, handles)
-cprintf('_[0.5,0.1,0.6]', '\tMV6, callback ParameterClick\n');
 % Get the index of the selected field
 i = get(hObject,'Value');
 % Set the parameter text to a description of the parameter
@@ -1086,6 +1080,7 @@ set(handles.ParameterEdit,'String',num2str(handles.P.(handles.pNames{i})));
 guidata(hObject,handles);
 
 function ParameterEdit_CreateFcn(hObject, eventdata, handles)
+
 function ParameterEdit_Callback(hObject, eventdata, handles)
 % Get the new parameter value
 pValue = str2double(get(hObject,'String'));
@@ -1109,6 +1104,7 @@ end
 guidata(hObject,handles);
 
 function TrialMaxEdit_CreateFcn(hObject, eventdata, handles)
+
 function TrialMaxEdit_Callback(hObject, eventdata, handles)
 % Get the new count
 newFinal = round(str2double(get(hObject,'String')));
@@ -1276,10 +1272,12 @@ close(handles.figure1);
 %%%%% AUXILLIARY FUNCTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function ChangeLight(h, newColor)
 % THIS FUNCTION CHANGES THE TASK LIGHT
+tic
 scatter(h, .5, .5, 600,... 
     'o', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', newColor);
 axis(h,[0 1 0 1]); bkgd = [.931 .931 .931];
 set(h, 'XColor', bkgd, 'YColor', bkgd, 'Color', bkgd);
+fprintf('TASK LIGHT TIMING: %.4f\n', toc);
 
 % THIS FUNCTION UPDATES THE RAW EYE CALIBRATION NUMBERS IN THE GUI
 function UpdateEyeText(h)
@@ -1290,7 +1288,8 @@ set(h.RotationAngleText, 'String', sprintf('%.3g', h.A.rot));
 
 % THIS FUNCTION UPDATES PLOTS OF THE EYE TRACE
 function UpdateEyePlot(handles)
-if ~handles.runTask && handles.A.j > 1   % At least 1 trial must be complete in order to plot the trace
+    % At least 1 trial must be complete in order to plot the trace
+if ~handles.runTask && handles.A.j > 1   
     subplot(handles.EyeTrace); hold off;  % clear old plot
     if ~handles.lastRunWasImage
         handles.PR.plot_trace(handles); hold on; % command to plot on eye traces

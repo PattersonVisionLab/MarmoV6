@@ -1,4 +1,20 @@
 classdef Protocol < handle 
+%
+% PROPERTIES
+%   Iti                 
+% METHODS
+%   value = get_state(obj)
+%   initFunc(obj, S, P)
+%   closeFunc(obj)
+%
+%   generate_trialsList(obj, S, P)
+%   tf = continue_run_trial(obj, lastFlipTime)
+%   P = next_trial(obj, S, P)
+%   iti = end_run_trial(obj)
+%   rewardFlag = state_and_screen_update(obj)
+%
+%   plot_trace(obj)
+%   end_plots(obj)   
 
     properties 
         Iti             = 1;        % default Iti duration
@@ -23,10 +39,12 @@ classdef Protocol < handle
             obj.trialsList = [];
         end
 
-        function closeFunc(obj) %#ok<MANU> 
+        function initFunc(obj, S, P) %#ok<INUSD>
+
         end
 
-        function initFunc(obj, S, P) %#ok<INUSD>
+        function closeFunc(obj) %#ok<MANU> 
+
         end
 
         function value = get_state(obj)
@@ -35,8 +53,8 @@ classdef Protocol < handle
     end
 
     methods 
-
         function generate_trialsList(obj, S, P) %#ok<INUSD> 
+            
         end
 
         function tf = continue_run_trial(obj, lastFlipTime) %#ok<INUSD> 
@@ -49,7 +67,7 @@ classdef Protocol < handle
             obj.P = P;
         end
 
-        function plot_trace(obj)
+        function plot_trace(obj) %#ok<MANU> 
         end
 
         function rewardFlag = state_and_screen_update(obj) %#ok<MANU> 

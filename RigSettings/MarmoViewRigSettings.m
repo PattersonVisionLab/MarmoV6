@@ -22,7 +22,7 @@ S = struct();
 S.whichEye = "right";
 %warning('NewEra syringe pump temporarily set to false!');
 
-onrig = true;
+onrig = false;
 if (onrig)
     S.newera = false;           % use Newera juice pump
     S.arrington = false;        % use Arrington eye tracker
@@ -59,14 +59,12 @@ S.ledIntensity = 8;
 
 if S.DummyScreen
 
-   S.monitor = 'Laptop';         % Monitor used for display window
-   S.screenNumber = 0;                 % Designates the display for task stimuli
-   S.frameRate = 60;                  % Frame rate of screen in Hz
-   % S.screenRect = [0 0 960 540];     % Screen dimensions in pixels
-   S.screenRect = [0 0 1280 720];     % Screen dimensions in pixels
-   S.screenWidth = 15;                 % Width of screen (cm)
-   S.centerPix =  [640 360];           % Pixels of center of the screen
-   % S.centerPix =  [480 270];           % Pixels of center of the screen
+   S.monitor = 'Laptop';                    % Monitor for display window
+   S.screenNumber = 1;                      % Display for task stimuli
+   S.frameRate = 60;                        % Frame rate of screen (Hz)
+   S.screenRect = [0 0 960 540];            % Screen dimensions in pixels
+   S.screenWidth = 15;                      % Width of screen (cm)
+   S.centerPix = ceil(S.screenRect(3:4)/2); % Pixels of center of screen
    
    S.guiLocation = [1000 100 890 660];
    S.bgColour = 127; % 186 if not gamma corrected
@@ -78,12 +76,12 @@ else
     
    S.monitor = 'ViewPixx-OLED';        % Monitor used for display window
    S.screenNumber = 1;                 % Designates the display for task stimuli
-   S.frameRate = 60; % 120;           % Frame rate of screen in Hz
+   S.frameRate =  120;                 % Frame rate of screen in Hz
    S.screenRect = [0 0 1920 1080];     % Screen dimensions in pixels
    S.screenWidth = 53;                 % Width of screen (cm)
    S.centerPix =  [960 540];           % Pixels of center of the screen
    S.guiLocation = [800 100 890 660];
-   S.bgColour = 186; %186;  % use 127 if gamma corrected
+   S.bgColour = 186;                   % use 127 if gamma corrected
 
    S.screenDistance = 57;              % Distance of eye to screen (cm)
    S.pixPerDeg = PixPerDeg(S.screenDistance, S.screenWidth, S.screenRect(3));

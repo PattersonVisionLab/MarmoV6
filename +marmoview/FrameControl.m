@@ -58,6 +58,10 @@ classdef FrameControl < handle
         pixPerDeg = 30;
         frameRate = 60;
     end
+
+    properties
+        FrameTimingFigure
+    end
     
     methods
         function obj = FrameControl()
@@ -132,11 +136,14 @@ classdef FrameControl < handle
             % Color for gaze indicator color, % purple, replace later
             obj.eyeColor = uint8(repmat(obj.Bkgd,[1 3])) + ...
                            uint8(obj.eyeIntensity * [1,-1,1]);
+
+            obj.FrameTimingFigure = FrameFlipFigure();
         end
         
         function update_args_from_Pstruct(obj, P)
             % NOTE, these arguments could load from the Pinit as well
-            cprintf('_Comments', '\tFrameControl, call updateArgsFromPStruct\n');
+            cprintf('_Comments', '\tFrameControl, call updateArgsFromPStruct =');
+            tic 
             if (isfield(P, 'showEye'))
                 obj.showEye = P.('showEye');
             end
@@ -151,6 +158,7 @@ classdef FrameControl < handle
             if (isfield(P,'eyeRadius'))
                 obj.eyeRadius = P.('eyeRadius');
             end
+            fprintf('%.4f ms\n', 1000*toc)  % max 1.6 ms for isfield checks
         end
         
         function set_task(obj, FP, TS)    
@@ -180,7 +188,7 @@ classdef FrameControl < handle
         function CL = prep_run_trial(obj, eyepos, pupil)
             % PREPRUNTRIAL Runs every screen flip
             
-            cprintf('_Comments', '\tFrameControl, call prepRunTrial\n');
+            %cprintf('_Comments', '\tFrameControl, call prepRunTrial\n');
             obj.FData(:,:) = NaN;  % set all to NaN at start
             obj.FData(1:5,1) = GetSecs;  % column 1 timelock on eye pos
             obj.FCount = 5;   % flip counter, why at 5 though?
@@ -270,7 +278,7 @@ classdef FrameControl < handle
             eyeI = obj.FCount;
             Screen('FillRect', obj.winPtr, obj.Bkgd);
             FEnd = Screen('Flip', obj.winPtr, GetSecs());
-            obj.FData(eyeI,6) = FEnd;
+            obj.FData(eyeI, 6) = FEnd;
 
             % Store the Clock Sixlet 
             CL = fix(clock);
@@ -310,7 +318,7 @@ classdef FrameControl < handle
                         x = (obj.FData(ind,2) - c(1)) / (dx * ppd);
                         y = (obj.FData(ind,3) - c(2)) / (dy * ppd);
                         [x, y] = obj.rotatecore(x, y, rot);
-                        plot(ax1,x,y,[obj.FP(k).col,'.']);
+                        plot(ax1, x, y, [obj.FP(k).col, '.']);
                     end
                 end
             end
@@ -325,14 +333,27 @@ classdef FrameControl < handle
                 txx = 2:tN;
                 flips = obj.FData(txx,1) - obj.FData((txx-1),1);
                 mflips = max(flips);
-                plot(ax2, [2,tN], [dT,dT], 'k-');
+                tic
+                plot(ax2, [2, tN], [dT, dT], 'k-');
                 set(ax2, 'NextPlot', 'Add');
                 tstates = ismember( obj.FData(txx,5), obj.TimeSensitive );
-                plot(ax2,txx(~tstates), flips(~tstates),'k.');
-                plot(ax2,txx(tstates), flips(tstates),'r.');
-                axis(ax2,[2 tN 0 (mflips*1.5)]);
+                plot(ax2, txx(~tstates), flips(~tstates), 'k.');
+                plot(ax2, txx(tstates), flips(tstates), 'r.');
+                axis(ax2, [2 tN 0 (mflips*1.5)]);
                 set(ax2, 'NextPlot', 'Replace');
+                fprintf('FRAME FLIP PLOT: %.4f\n', toc)
+
+                tic
+                obj.FrameTimingFigure.update(txx, flips, tstates);
+                fprintf('FRAME FLIP UIFIGURE: %.4f\n', toc)
             end
+            % 
+            % fprintf('REGULAR FLIPS: %.3f +- %.3f\n', ...
+            %     mean(txx(~tstates)), std(txx(~tstates)));
+            % if any(tstates)
+            %     fprintf('TIME SENSITIVE FLIPS: %.3f +- %.3f\n',... 
+            %         mean(txx(tstates)), std(txx(tstates)));
+            % end 
         end
     end 
     
