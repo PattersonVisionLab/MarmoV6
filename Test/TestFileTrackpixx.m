@@ -1,8 +1,13 @@
+saveOutput = false;
+trialTime = 10;
 %Connect to TRACKPixx3
 Datapixx('Open');
 Datapixx('SetTPxAwake');
 Datapixx('SetupTPxSchedule');
 Datapixx('RegWr');
+
+
+img = Datapixx('GetEyeImage');
 
 %open window
 screenID = 1;                                      
@@ -38,14 +43,23 @@ Datapixx('RegWrVideoSync');
 %flip our image to the screen
 Screen('Flip', windowPtr);
 
-%wait
-WaitSecs(10);
 
-img = Datapixx('GetEyeImage');
+startTime = Datapixx('GetMarker');
+t = Datapixx('GetTime');
+while t < trialTime
+    Screen('Flip', winPtr);
+end
+%wait
+WaitSecs(5);
+
+datapixx.strobe(63,0);  % send all bits on to mark trial start
+gs = getSecs();
+gt = Datapixx('GetTime');
+WaitSecs(5);
+
 %stop immediately and get some timestamps
 Datapixx('StopTPxSchedule');
 Datapixx('RegWrRd');
-startTime = Datapixx('GetMarker');
 endTime = Datapixx('GetTime');
 viewingTime = endTime - startTime;
 
@@ -78,9 +92,12 @@ TPxData = array2table(bufferData, 'VariableNames', {'TimeTag',...
                                                     'LeftEyeRawY',... 
                                                     'RightEyeRawX',...
                                                     'RightEyeRawY'});
+
 %save as both a .mat and .csv file
-save('TPxData.mat', 'TPxData');
-writetable(TPxData, 'TPxData.csv');
+if saveOutput
+    save('TPxData.mat', 'TPxData');
+    writetable(TPxData, 'TPxData.csv');
+end
 
 %turn off tracker and disconnect
 Datapixx('SetTPxSleep');

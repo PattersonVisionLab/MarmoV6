@@ -5,6 +5,7 @@ classdef FrameFlipFigure < handle
         Axis
         sensitiveTimePointLine
         regularTimePointLine
+        ptbFlipLine
     end
 
     methods
@@ -12,12 +13,14 @@ classdef FrameFlipFigure < handle
             obj.createUi();
         end
 
-        function update(obj, txx, flips, tStates)
+        function update(obj, txx, flips, tStates, ptbFlips)
             if nargin < 3 || isempty(tStates)
                 tStates = zeros(size(txx));
             end
 
-            txx = txx/1000;  % sec --> ms
+            txx = txx/10;               % ms --> sec
+            flips = flips * 1000;       % sec --> ms
+            ptbFlips = ptbFlips * 1000; % sec --> ms
 
             if any(tStates)
                 set(obj.sensitiveTimePointLine,... 
@@ -29,6 +32,7 @@ classdef FrameFlipFigure < handle
 
             set(obj.regularTimePointLine,... 
                 'XData', txx(~tStates), 'YData', flips(~tStates));
+            set(obj.ptbFlipLine, 'XData', txx, 'YData', ptbFlips);
             axis(obj.Axis, 'tight');
             obj.Axis.YLim(1) = 0;
         end
@@ -39,17 +43,21 @@ classdef FrameFlipFigure < handle
             obj.Figure = uifigure("Name", "Frame Timing Figure");
             obj.Figure.Position(1) = obj.Figure.Position(1)*0.75;
             obj.Figure.Position(3) = 800;
-            obj.Axis = uiaxes(obj.Figure, "FontSize", 12);
+            obj.Axis = uiaxes(obj.Figure,... 
+                "Position", [10 10 (obj.Figure.Position(3:4)-10)],...
+                "FontSize", 12);
             
             obj.sensitiveTimePointLine = line(obj.Axis,...
                 "XData", 0, "YData", 0, "Color", 'r', "Marker", '.',...
-                "MarkerSize", 10, "LineStyle", "none");
+                "MarkerSize", 15, "LineStyle", "none");
             obj.regularTimePointLine = line(obj.Axis,...
                 "XData", 0, "YData", 0, "Color", [0.1 0.1 0.1],...
-                "Marker", ".", "MarkerSize", 10, "LineStyle", "none");
+                "Marker", ".", "MarkerSize", 15, "LineStyle", "none");
+            obj.ptbFlipLine = line(obj.Axis,...
+                "XData", 0, "YData", 0, "Color", [0.1 0.1 0.8],...
+                "Marker", ".", "MarkerSize", 5, "LineStyle", "none");
             xlabel(obj.Axis, 'Time (sec)');
             ylabel(obj.Axis, 'Frame Time (ms)');
-            % yticks(obj.Axis, [1/120, 1/60]);
         end
     end
 end

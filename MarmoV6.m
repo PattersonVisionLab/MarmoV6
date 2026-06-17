@@ -730,7 +730,7 @@ while handles.runTask && A.j <= A.finish
     runloop = 1;
     %****** added to control when juice drop is delivered based on graphics
     %****** demands, drop juice on frames with low demands basically
-    screenTime = GetSecs;
+    screenTime = GetSecs();
     frameTime = (0.5/handles.S.frameRate);
     holdrop = 0;
     dropreject = 0;

@@ -344,7 +344,8 @@ classdef FrameControl < handle
                 fprintf('FRAME FLIP PLOT: %.4f\n', toc)
 
                 tic
-                obj.FrameTimingFigure.update(txx, flips, tstates);
+                ptbFlips = obj.FData(txx, 6) - obj.FData(txx-1, 6);
+                obj.FrameTimingFigure.update(txx, flips, tstates, ptbFlips);
                 fprintf('FRAME FLIP UIFIGURE: %.4f\n', toc)
             end
             % 
