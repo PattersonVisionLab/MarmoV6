@@ -19,7 +19,7 @@ cprintf('_Comments', 'MarmoViewRigSettings, call\n');
 
 % NEW COMMANDS TO INTEGRATE LATER
 S = struct();
-S.whichEye = "right";
+S.whichEye = "left";
 %warning('NewEra syringe pump temporarily set to false!');
 
 onrig = true;

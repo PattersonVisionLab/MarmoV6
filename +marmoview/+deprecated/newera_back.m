@@ -2,7 +2,7 @@
 
 % 25-06-2016 - Shaun L. Cloherty <s.cloherty@ieee.org>
 
-classdef newera < marmoview.liquid
+classdef newera_back < marmoview.liquid
   % Wrapper class for New Era syringe pumps (see http://syringepump.com/).
   %
   % To see the public properties of this class, type
@@ -23,19 +23,19 @@ classdef newera < marmoview.liquid
   %   rate     - dispensing rate (ml per minute)
   
   properties (SetAccess = private, GetAccess = public)
-    dev@serial; % the serial port object - PRIVATE?
+    dev	serial; % the serial port object - PRIVATE?
 
     port; % port for serial communications ('COM1','COM2', etc.)
     baud;
     
-    address@double; % pump address (0-99)
+    address	double; % pump address (0-99)
   end % properties
 
   % dependent properties, calculated on the fly...
   properties (Dependent, SetAccess = public, GetAccess = public)
-    diameter@double; % diameter of the syringe (mm)
-    volume@double;   % dispensing volume (mL)
-    rate@double;     % dispensing rate (mL per minute)
+    diameter	double; % diameter of the syringe (mm)
+    volume	double;   % dispensing volume (mL)
+    rate	double;     % dispensing rate (mL per minute)
   end
 
   methods % set/get dependent properties
@@ -113,7 +113,7 @@ classdef newera < marmoview.liquid
   end
 
   methods
-    function o = newera(h,varargin), % h is the handle for the marmoview gui
+    function o = newera_back(h,varargin), % h is the handle for the marmoview gui
 %       fprintf(1,'marmoview.newera()\n');
 
       o = o@marmoview.liquid(h,varargin{:}); % call parent constructor

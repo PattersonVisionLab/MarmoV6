@@ -77,11 +77,6 @@ classdef newera < marmoview.liquid
             
             try
                 [err, status] = obj.open();
-                disp(err);
-            catch ME
-                disp(ME.message);
-                error('MARMOVIEW:NEWERA',...
-                    'Could not connect to New Era syringe pump on %s!', obj.port);
             end
             
             % configure the pump...
