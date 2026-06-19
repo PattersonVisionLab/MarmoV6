@@ -1,29 +1,31 @@
 function S = MarmoViewRigSettings
-% For use with MarmoView version 3   
+% For use with MarmoView version 6+  
 %
 % Revised by JM 8/2018 to consolidate several new features and Dummy Screen
+% Revised by SP 6/2026 to integrate trackpixx
 %
 % This function contains all settings for a particular rig, this way, when
 % a change is made to the rig, all settings files do not need to be
-% updated. This function MUST be located in a directory set in the MATLAB
-% path so that it can both be called by MarmoView (in MarmoView directory)
-% and by settings functions (in the MarmoView/Settings directory). I
-% suggest SupportFunctions.
+% updated.
 %
 % For example, if you change the monitor set up, you only change those
 % monitor related variables here.
 
 %#ok<*UNRCH> 
 
-cprintf('_Comments', 'MarmoViewRigSettings, call\n');
+S = struct();
+S.verbose = false;
+S.TimeSensitive = [];  % default, allow GUI updating in run func states
+
+if S.verbose
+    cprintf('_Comments', 'MarmoViewRigSettings, call\n');
+end
 
 % NEW COMMANDS TO INTEGRATE LATER
-S = struct();
-S.whichEye = "left";
-%warning('NewEra syringe pump temporarily set to false!');
+S.whichEye = "left";  % magenta on trackpixx
 
-onrig = true;
-if (onrig)
+onrig = false;
+if onrig
     S.newera = false;           % use Newera juice pump
     S.arrington = false;        % use Arrington eye tracker
     S.eyelink = false;          % use Eyelink eye tracker
@@ -44,7 +46,6 @@ else
     S.EyeDump = false;
     S.DataPixx = false;
 end
-S.TimeSensitive = [];  % default, allow GUI updating in run func states
 %***************************
 
 S.pumpCom = 'COM4';       % COM port the New Era syringe pump
@@ -88,5 +89,4 @@ else
 
 end
 
-% 2.2 single value gamma correction works for BenQ
 S.gamma = 2.2;                       

@@ -26,8 +26,6 @@ function A=openScreen(S,A)
     PsychImaging('AddTask', 'FinalFormatting',...
         'DisplayColorCorrection', 'SimpleGamma');
     
-    Screen('Preference', 'SkipSyncTests', 1)
-    
     % create the ptb window...
     if isfield(S,'DummyScreen') && S.DummyScreen
         Screen('Preference', 'SkipSyncTests', 1);

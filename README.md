@@ -1,13 +1,45 @@
+# MarmoV6 (V7?)
+
+Running notes on parsing how MarmoV6 works.
+
+### Version discrepancies
+Rig computer (simulation and experiment modes)
+- Windows 11, MATLAB 2020a and 2024b
+Sara Laptop
+- Windows 11, MATLAB 2025b (needed to adjust verLessThan calls in PTB)
+
+
+### Hardware integration
+PLDAPS sync with Plexon strobes using first 16 DOut channels so "blue" pixel sync options should be open for us to do whatever we'd like.
+
+NewEra syringe pump could go thru USB.
+
+Trackpixx calibration contains 9 coefficients (left x, right x, left y, right y). 1 = const, 2 = x, 3 = y, 4 = x^2, 5 = y^2, 6 = x^3 || xy^2, 7 = xy, 8 = x^2y, 9 = x^2y^2
 
 ### Structures
-- **`S`**:  Settings
-- **`P`**:  Parameters
-- **`C`**:  Calibration
+- **`S`**:  Settings (`MarmoViewRigSettings` but also other things added after each reload in UI and in `Settings\` runs?)
+    - Output of `MarmoViewRigSettings` (called in UI)
+    - Output of protocol settings (calls rig settings too), descriptors for fields in `P`
+    - Misc things in MarmoV6 
+- **`P`**:  Parameters (set only by protocol setting functions?)
+- **`C`**:  Calibration. This never changes, but the copy in `A` does.
 - **`A`**: 
 - **`D`**:  Data (P, eyeData, PR, C)
 - **`PR`**: Protocol 
 - **`PRI`**: BackImage Protocol (`lastRunWasImage`)
 - **`FC`**: FrameControl object
+
+
+> Different structures serve as sites for "working" copy of variables and initial copy (e.g., used when resetting something). For example, `PR` is the working copy of P? And the fields of `C` are also in `A`, but `C` never changes and `A` is working copy? Some features of `S` like rig settings are static but have to be reloaded when `S` is reset by a protocol setting file to append protocol-specific info and then the MarmoV6 additions (subject info) need to be appended too. 
+
+- RigSettings (Monitor, Reward, Eyetrack, Datapixx, misc params)
+- StimulusProtocol
+- BackgroundImageProtocol
+- _CurrentProtocol_
+- ProtocolParameters (separate from protocol itself but merge descriptors?)
+- BaseCalibration
+- _Calibration_
+- Data
 
 ### Light
 - Grey: no protocol selected
@@ -16,7 +48,7 @@
 - Green: protocol running
 - Yellow: pressed pause
 
-
+# Classes
 ### Eyetracker
 - `startfile`: needed for arrington, automatic for eyelink, up to us for trackpixx
 - `closefile`: needed for eyelink and arrington
@@ -41,47 +73,64 @@
 - `PR = end_plots(obj, P, A)`
 
 
-### WORKFLOW
-Initialize
-- TrialIndexer
-- MViewRigSettings()
-- FrameControl.initialize()
-- FrameControl.updateArgsFromStruct()
-- EyeTrack.startFile()
+# WORKFLOW
+#### Initialize a Protocol
+-	obj = TrialIndexer()
+-	MViewRigSettings()
+-	PsychStartup()
+-	A = openScreen(S, A)
+-	PR = Protocol (handles.A.window)
+-	Protocol.generateTrialsList(S, P)
+-	Protocol.initFunc(S, P)
+-	PRI = BackImage(handles.A.window)
+-	FrameControl.initialize()
+-	FrameControl.updateArgsFromPStruct(P)
+-	EyeTrack.startFile()
 
-Run
-- MVCallback: RunTrial
-- EyeTrack.unpause()
-- FrameControl.updateArgsFromPStruct()
-- Protocol.prepRunTrial()
-- _Setting clock_
-- FrameControl.prepRunTrial()
-- EyeTrack.sendCommand - "TRIALSTART"...
-- EyeTrack.unpause()
-- _Starting run loop_
+#### Run the Protocol
+-	MV6 Callback: RunTrial
+-	EyeTrack.unpause()
+-	FrameControl.updateEyeCalib(A.c, A.dx, A.dy, A.rot)
+-	FrameControl.updateArgsFromPStruct(P)
 
-Each Frame 
-- FrameControl.grabEyeRunTrial()
-- FrameControl.updateEyeCalib()
-- EyeTrack.getgaze()
-- EyeTrack.getpupil()
-- [currentTime, ] = FrameControl.grabEyeRunTrial()
-- Protocol.stateAndScreenUpdate()
-- Protocol.continueRunTrial()
+Each Trial
+-	P = Protocol.nextTrial(S, P)
+-	[FP, TS] = Protocol.prepRunTrial()
+-	FrameControl.setTask(FP, TS)
+-	[x, y] = EyeTrack.getgaze()
+-	r = EyeTrack.getpupil()
+-	STARTCLOCK = FrameControl.prepRunTrial()
+-	EyeTrack.sendCommand(“TRIAL START”)
+-	Datapixx.strobe()
+-	EyeTrack.unpause()
 
-Final Frame
-- FrameControl.lastScreenFlip()
-- EyeTrack.pause()
-- EyeTrack.sendCommand - "TRIALENDED"...
-- Protocol.endRunTrial()
-- EyeTrack.getDataOnBuffer()
-- FrameControl.uploadEyeData()
-- FrameControl.uploadC()
+Each Frame
+-	state = Protocol.getState()
+-	[ex, ey] = EyeTrack.getgaze()
+-	r = EyeTrack.getpupil()
+-	[currentTime, x, y] = FrameControl.grabEyeRunTrial(state, ex, ey, pupil)
+-	reward = Protocol.stateAndScreenUpdate(currentTime, x, y)
+-	reward.deliver()
+-	[updateUI, tStamp] = FrameControl.screenUpdateRunTrial(state)
+-	FrameControl.updateEyeCalib(A.c, A.dx, A.dy, A.rot)
+-	tf = Protocol.continueRunTrial(tStamp)
 
+Final Frame in Trial
+-	ENDCLOCK = FrameControl.lastScreenFlip()
+-	EyeTrack.pause()
+-	Datapixx.strobe()
+-	EyeTrack.sendCommand(“TRIALENDED”)
+-	ITI = Protocol.endRunTrial()
+-	Protocol.plotTrace(handles)
+-	FrameControl.plotEyeTraceAndFlips(handles)
+-	D.PR = Protocol.endPlots(P, A)
+-	tpxData = EyeTrack.getDataOnBuffer()
+-	D.eyeData = FrameControl.uploadEyeData()
+-	[c,dx,dy,rot] = FrameControl.uploadC()
 
-Clear
-- EyeTrack.pause()
-- MView.clearSettings()
-- EyeTrack.closeFile()
-- _Condensing data_
-- MViewRigSettings()
+Clear Protocol
+-	EyeTrack.pause()
+-	MView.clearSettings()
+-	EyeTrack.closeFile()
+-	MView.condenseDataStruct()
+-	MViewRigSettings()
