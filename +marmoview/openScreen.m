@@ -4,8 +4,8 @@ function A=openScreen(S,A)
 % History:
 %   14Jun2026 - Added SkipSyncTests for DummyScreen
 %   16Jun2026 - Added UseDataPixx
-    
-    PsychStartup();
+%   22Jun2026 - Removed PsychStartup(), put in startup.m
+% -------------------------------------------------------------------------
     
     % disable ptb welcome screen
     Screen('Preference','VisualDebuglevel',3);

@@ -1,4 +1,3 @@
-
 function [S,P] = Speed_Motion_OKN
 
 %%%% NECESSARY VARIABLES FOR GUI

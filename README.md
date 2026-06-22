@@ -2,6 +2,9 @@
 
 Running notes on parsing how MarmoV6 works.
 
+### Important for running this version
+- Assumes `PsychStartup()` is called in `startup.m` as of 22Jun2026
+
 ### Version discrepancies
 Rig computer (simulation and experiment modes)
 - Windows 11, MATLAB 2020a and 2024b
