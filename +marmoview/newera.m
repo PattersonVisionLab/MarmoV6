@@ -225,6 +225,16 @@ classdef newera < marmoview.liquid
             %       fprintf(1,'marmoview.newera.report()\n');
             r.totalVolume = obj.qryvol();
         end
+
+        function txt = getVolumeText(obj, value)
+            % SETVOLUMETEXT
+            %   Option for value input is for UI to standardize units
+            if nargin < 2
+                value = obj.volume / 1000;
+            end
+            txt = [num2str(value), ' uL'];
+        end
+
     end % methods
     
     methods (Access = private)

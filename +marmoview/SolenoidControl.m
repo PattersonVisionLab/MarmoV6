@@ -76,5 +76,12 @@ classdef SolenoidControl < handle % marmoview.liquid
             r.totalVolume = 0;
         end
 
+        function txt = getVolumeText(obj, value)
+            if nargin < 2
+                value = obj.volume;
+            end
+            txt = [num2str(value), ' ms'];
+        end
+
     end
 end

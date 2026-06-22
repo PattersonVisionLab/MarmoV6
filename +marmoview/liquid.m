@@ -1,6 +1,7 @@
 % abstract class for providing feedback in the form of a liquid reward
 
 % 23-05-2016 - Shaun L. Cloherty <s.cloherty@ieee.org>
+% 21-06-2026 - SSP - Added getVolumeText
 
 classdef (Abstract) liquid < marmoview.feedback
   % Abstract class for providing liquid reward.
@@ -17,6 +18,10 @@ classdef (Abstract) liquid < marmoview.feedback
   
     properties (Abstract)
         volume; % must be declared by the concrete subclass
+    end
+
+    methods (Abstract)
+        txt = getVolumeText(obj, value)
     end
     
     methods

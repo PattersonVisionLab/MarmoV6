@@ -13,20 +13,21 @@ classdef grating < handle
   
   % 14-08-2018 - Jude Mitchell
   
-  properties (Access = public),
-    position   = [0.0, 0.0]; % [x,y] (pixels)
-    radius   = 50; % (pixels)
-    orientation   = 0;  % horizontal
-    cpd   = 2; % cycles per degree
-    cpd2   = NaN; % default not used, else composite stim
-    phase   = 0;  % (radians)
-    square   = false;  
-    ring   = false;
-    bkgd   = 127;  
-    range   = 127;
-    gauss   = true;  %gaussian aperture
-    transparent   = 0.5;  % from 0 to 1, how transparent
-    pixperdeg   = 0;  % set non-zero to use for CPD computation
+  properties 
+    position        double = [0.0, 0.0]; % [x,y] (pixels)
+    radius          double = 50; % (pixels)
+    orientation     double = 0;  % horizontal
+    cpd             double = 2; % cycles per degree
+    cpd2            double = NaN; % default not used, else composite stim
+    phase           double = 0;  % (radians)
+    square          logical = false;  
+    squareAperture  logical = false;  
+    ring            logical = false;
+    bkgd            double = 127;  
+    range           double = 127;
+    gauss           logical = true;  %gaussian aperture
+    transparent     double = 0.5;  % from 0 to 1, how transparent
+    pixperdeg       double = 0;  % set non-zero to use for CPD computation
     screenRect = [];   % if radius Inf, then fill whole area
   end
         
@@ -37,20 +38,19 @@ classdef grating < handle
     goRect;  % default, define same scale as texture
   end
   
-  methods (Access = public)
+  methods 
     function o = grating(winPtr,varargin) % marmoview's initCmd?
       o.winPtr = winPtr;
       o.tex = [];
       o.texRect = [];
       o.goRect = [];
       
-      if nargin == 1,
+      if nargin == 1
         return
       end
 
       % initialise input parser
-      args = varargin;
-      p = inputParser;
+      p = inputParser();
       p.StructExpand = true;
       
       p.addParameter('position',o.position,@isfloat); % [x,y] (pixels)
@@ -67,26 +67,24 @@ classdef grating < handle
       p.addParameter('pixperdeg',o.pixperdeg,@isdouble);
                   
       try
-        p.parse(args{:});
+        p.parse(varargin{:});
       catch
         warning('Failed to parse name-value arguments.');
         return;
       end
       
-      args = p.Results;
-    
-      o.position = args.position;
-      o.radius = args.radius;
-      o.orientation = args.orientation;
-      o.cpd = args.cpd;
-      o.cpd2 = args.cpd2;
-      o.phase = args.phase;
-      o.square = args.square;
-      o.ring = args.ring;
-      o.gauss = args.gauss;
-      o.bkgd = args.bkgd;
-      o.range = args.range;
-      o.pixperdeg = args.pixperdeg;
+      o.position = p.Results.position;
+      o.radius = p.Results.radius;
+      o.orientation = p.Results.orientation;
+      o.cpd = p.Results.cpd;
+      o.cpd2 = p.Results.cpd2;
+      o.phase = p.Results.phase;
+      o.square = p.Results.square;
+      o.ring = p.Results.ring;
+      o.gauss = p.Results.gauss;
+      o.bkgd = p.Results.bkgd;
+      o.range = p.Results.range;
+      o.pixperdeg = p.Results.pixperdeg;
  
     end
         
@@ -124,9 +122,9 @@ classdef grating < handle
           % Convert cycles to max radians (s1)
        end
        if (o.pixperdeg > 0)
-           maxRadians = pi * o.cpd /o.pixperdeg;
+           maxRadians = 2 * pi * o.cpd /o.pixperdeg;
        else
-           maxRadians = pi * o.cpd / 20;
+           maxRadians = 2 * pi * o.cpd / 20;
        end   
        % Create the sinusoid (s1)
        pha = o.phase * pi/180;
@@ -150,9 +148,9 @@ classdef grating < handle
           s1( s1 < 0 ) = -1;
        end
        if ~isinf(o.radius)
-          if (o.square)
-            e1( e1 > 0.01) = 1;
-            e1( e1 <= 0.01) = 0;
+          if (o.squareAperture)
+             e1( e1 > 0.01) = 1;
+             e1( e1 <= 0.01) = 0;
           end
           %Create the gabor (g1)
           if (o.transparent < 0)
