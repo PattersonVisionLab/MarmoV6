@@ -24,8 +24,10 @@ obj = marmoview.KinesisMotorSyringe([], device,...
     "StepSize", 0.01,...
     "SyringeDiameter", 10);
 
-
-
+%% If necessary, retract motor
+% This moves to 0 if moveDirection is "up" and to maxPosition if
+% moveDirection is "down"
+obj.retract();
 
 %% Calibration code
 % Run these two lines in command line and change step size until the
