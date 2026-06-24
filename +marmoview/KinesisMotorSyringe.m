@@ -16,7 +16,7 @@ classdef KinesisMotorSyringe < marmoview.liquid
 
     properties (SetAccess = private)
         DEVICE
-        moveDirection   (1,1)   string      {mustBeMember(moveDirection, ["up", "down"])} = "up"
+        moveDirection   (1,1)   string      {mustBeMember(moveDirection, ["up", "down"])} = "down"
         stepSize        (1,1)   double 
         % The diameter of the syringe in mm, dictates mm -> ml mapping
         syringeDiameter (1,1)   double
@@ -38,7 +38,7 @@ classdef KinesisMotorSyringe < marmoview.liquid
             ip = inputParser();
             ip.CaseSensitive = false;
             addParameter(ip, 'MoveDirection', "down", @(x) ismember(x, ["up", "down"]));
-            addParameter(ip, 'StepSize', 0.01, @isnumeric);
+            addParameter(ip, 'StepSize', 0.02, @isnumeric);
             addParameter(ip, 'SyringeDiameter', 10, @isnumeric);
             parse(ip, varargin{:});
 
@@ -49,19 +49,25 @@ classdef KinesisMotorSyringe < marmoview.liquid
             obj.initialize();
         end
 
-        function set.volume(obj, value)
+        function setVolume(obj, value)
+            mm = obj.ml2mm(value);
+            if mm > max(obj.positionLimits)
+                warndlg('Volume set to unrealistic value', 'Volume Setting Error');
+            end
+            fprintf('\tVolume set: %.4f mm, %.3f uL\n', mm, value/1000);
             obj.volume = value;
-            obj.setStepSize(obj.ml2mm(value), false);
+            obj.setStepSize(mm, false);
         end
 
         function deliver(obj)
             obj.DEVICE.jog(obj.moveDirection);
             if obj.verbose
-                fprintf('\n\nNew motor position: %.3f\n', obj.position);
+                fprintf('\tNew motor position: %.3f\n', obj.position);
             end
+            obj.totalVolume = obj.totalVolume + obj.volume;
         end
 
-        function r = report(~)
+        function r = report(obj)
             r.totalVolume = obj.totalVolume;
         end
 
@@ -97,7 +103,7 @@ classdef KinesisMotorSyringe < marmoview.liquid
 
         function setStepSize(obj, value, updateVolume)
             % updateVolume option prevents circular calls with volume setter
-            if narign < 3
+            if nargin < 3
                 updateVolume = true;
             end
             obj.DEVICE.setJogStepSize(value);

@@ -143,11 +143,11 @@ function MarmoV6_OpeningFcn(hObject, eventdata, handles, varargin)
             deviceManager = ur.pattersonlab.aoslo.motion.ThorlabsMotorManager();
             device = ur.pattersonlab.aoslo.motion.KST201.init(...
                 S.kinesis_serialNumber, S.kinesis_stageName, deviceManager);
-            assignin('base', 'kinesisDevice', device);
             handles.reward = marmoview.KinesisMotorSyringe([], device,...
                 "MoveDirection", S.kinesis_moveDirection,...
                 "StepSize", S.kinesis_stepSize,...
                 "SyringeDiameter", S.kinesis_syringeDiameter);
+            assignin('base', 'kinesisDevice', handles.reward);
         case "NewEra"
             handles.reward = marmoview.newera(hObject,...
                 'port', S.pumpCom,...
@@ -655,7 +655,7 @@ function RunTrial_Callback(hObject, eventdata, handles)
     
         % Update in case juice volume was set in parameters (TODO, standardize)
         if handles.A.juiceVolume ~= A.juiceVolume
-            handles.reward.volume = A.juiceVolume;
+            handles.reward.setVolume(A.juiceVolume);
             if (handles.S.solenoid)
                 set(handles.JuiceVolumeText,...
                     'String', sprintf('%3i ms',A.juiceVolume*1e3));
@@ -733,7 +733,9 @@ function RunTrial_Callback(hObject, eventdata, handles)
         dropreject = 0;
         %**************
     
-        cprintf('[1 0.2 1]', '\tMV6, starting run loop\n');
+        if handles.S.verbose
+            cprintf('[1 0.2 1]', '\tMV6, starting run loop\n');
+        end
         while runloop
             if ~handles.runImage
                 state = handles.PR.get_state();
@@ -1041,7 +1043,7 @@ function JuiceVolumeEdit_Callback(hObject, eventdata, handles)
     % Volume is entered in microliters, classes take milliliters
     vol = get(hObject, 'String'); 
     volML = str2double(vol) / 1e3; 
-    handles.reward.volume = volML; 
+    handles.reward.setVolume(volML); 
     if handles.S.rewardType == "Solenoid"
         set(handles.JuiceVolumeText, 'String', [vol ' ms']);
     else
@@ -1197,6 +1199,18 @@ function RotationAngleText_Callback(hObject, eventdata, handles)
     guidata(hObject,handles);
     UpdateEyeText(handles);
     UpdateEyePlot(handles);
+
+function RotationAngleText_CreateFcn(hObject, eventdata, handles)
+function ShiftSize_CreateFcn(hObject, eventdata, handles)
+function GainSize_CreateFcn(hObject, eventdata, handles)
+function TrialMaxEdit_CreateFcn(hObject, eventdata, handles)
+function ParameterEdit_CreateFcn(hObject, eventdata, handles)
+function Parameters_CreateFcn(hObject, eventdata, handles)
+function OutputSuffixEdit_CreateFcn(hObject, eventdata, handles)
+function OutputPrefixEdit_CreateFcn(hObject, eventdata, handles)
+function OutputSubjectEdit_CreateFcn(hObject, eventdata, handles)
+function OutputDateEdit_CreateFcn(hObject, eventdata, handles)
+function JuiceVolumeEdit_CreateFcn(hObject, eventdata, handles)
 
 %% OUTPUT PANEL CALLBACKS 
 function OutputPrefixEdit_Callback(hObject, eventdata, handles)

@@ -142,7 +142,7 @@ classdef FrameControl < handle
         
         function update_args_from_Pstruct(obj, P)
             % NOTE, these arguments could load from the Pinit as well
-            cprintf('_Comments', '\tFrameControl, call updateArgsFromPStruct =');
+            %cprintf('_Comments', '\tFrameControl, call updateArgsFromPStruct =');
             tic 
             if (isfield(P, 'showEye'))
                 obj.showEye = P.('showEye');
@@ -168,7 +168,7 @@ classdef FrameControl < handle
         end
         
         function eyeData = upload_eyeData(obj)
-            cprintf('_Comments', '\tFrameControl, call uploadEyeData\n');
+            %cprintf('_Comments', '\tFrameControl, call uploadEyeData\n');
             if obj.FCount
                 eyeData = obj.FData(1:obj.FCount,:);
             else
@@ -177,7 +177,7 @@ classdef FrameControl < handle
         end
         
         function [c,dx,dy,rot] = upload_C(obj)
-            cprintf('_Comments', '\tFrameControl, call uploadC\n');
+            %cprintf('_Comments', '\tFrameControl, call uploadC\n');
             c = obj.c;
             dx = obj.dx;
             dy = obj.dy;
@@ -229,6 +229,8 @@ classdef FrameControl < handle
             x = (eyepos(1) - obj.c(1)) / (obj.dx * obj.pixPerDeg);
             y = (eyepos(2) - obj.c(2)) / (obj.dy * obj.pixPerDeg);
             [x, y] = obj.rotatecore(x, y, obj.rot);
+
+            disp([eyepos, x, y, pupil]);
         end
         
         

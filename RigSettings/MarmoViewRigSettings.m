@@ -68,14 +68,14 @@ switch S.rewardType
         S.kinesis_stageName = "HS ZST213B";
         S.kinesis_syringeDiameter = 10;   % Internal diameter of syringe (mm)
         S.kinesis_moveDirection = "down"; % Direction to move to dispense
-        S.kinesis_stepSize = 0.02;        % Step to release 1 drop reliably (mm)
+        S.kinesis_stepSize = 0.2;         % Step to release 1 drop reliably (mm)
 end
 
 % Defaults for TrackPixx. Update once marmoset-specific values are found.
 if S.eyetrackerType == "TrackPixx"
-    S.trackpixx_expectedIrisSize = 115;     % pixels
+    S.trackpixx_expectedIrisSize = 70;     % pixels
     S.trackpixx_species = 1;                % 1 = NHP, 0 = human
-    S.trackpixx_ledIntensity = 12;            
+    S.trackpixx_ledIntensity = 15;            
     S.trackpixx_lens = 3;                   % 75 mm
     S.trackpixx_mainEye = "right";          % right = magenta on trackpixx
 end

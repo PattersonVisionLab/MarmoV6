@@ -55,7 +55,7 @@ classdef eyetrack_trackpixx < handle
             Datapixx('SetTPxAwake');
             obj.isAwake = true;
             Datapixx('SetTrackingSpecies', 1);  % NHP
-            Datapixx('SetLens', 3);  % 75 mm
+            %Datapixx('SetLens', 3);  % 75 mm
             %Datapixx('SetLedIntensity', obj.ledIntensity);
             %Datapixx('SetExpectedIrisSizeInPixels', obj.expectedIrisSize);
             Datapixx('RegWrRd');

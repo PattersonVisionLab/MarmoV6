@@ -118,7 +118,7 @@ classdef PR_FaceCal < handle
                 obj.state = 1; % Inter trial interval
                 obj.faceOff = GetSecs;
                 drop = 1;
-                cprintf('_[0.5,0.5,0.5]', '\tProtocol, give reward\n');
+                 cprintf('_[0.5,0.5,0.5]', '\tProtocol, give reward\n');
             end
             % GET THE DISPLAY READY FOR THE NEXT FLIP, STATE SPECIFIC DRAWS
             switch obj.state
