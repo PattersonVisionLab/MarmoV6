@@ -75,7 +75,11 @@ end
 if S.eyetrackerType == "TrackPixx"
     S.trackpixx_expectedIrisSize = 70;     % pixels
     S.trackpixx_species = 1;                % 1 = NHP, 0 = human
-    S.trackpixx_ledIntensity = 15;            
+    if S.trackpixx_species == 1
+        S.trackpixx_ledIntensity = 15;          
+    else
+        S.trackpixx_ledIntensity = 8;
+    end
     S.trackpixx_lens = 3;                   % 75 mm
     S.trackpixx_mainEye = "right";          % right = magenta on trackpixx
 end
