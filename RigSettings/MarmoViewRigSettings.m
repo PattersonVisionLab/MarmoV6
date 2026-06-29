@@ -107,7 +107,7 @@ else
    S.screenNumber = 1;                 % Designates the display for task stimuli
    S.frameRate =  120;                 % Frame rate of screen in Hz
    S.screenRect = [0 0 2560 1440];     % Screen dimensions in pixels
-   S.screenWidth = 53;                 % Width of screen (cm)
+   S.screenWidth = 70;                 % Width of screen (cm)
 
    S.centerPix =  [...                 % Pixels for center of screen
        round((S.screenRect(3)-S.screenRect(1))/2) + S.screenRect(1),...
