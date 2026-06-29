@@ -96,7 +96,7 @@ if S.DummyScreen
    S.centerPix = ceil(S.screenRect(3:4)/2); % Pixels of center of screen
    
    S.guiLocation = [1000 100 890 660];
-   S.bgColour = 127; % 186 if not gamma corrected
+   S.bgColour = 0.5; % 186 if not gamma corrected
 
    S.screenDistance = 30; %14; %57;         % Distance of eye to screen (cm)
    S.pixPerDeg = PixPerDeg(S.screenDistance,S.screenWidth,S.screenRect(3));
@@ -107,15 +107,15 @@ else
    S.screenNumber = 1;                 % Designates the display for task stimuli
    S.frameRate =  120;                 % Frame rate of screen in Hz
    S.screenRect = [0 0 2560 1440];     % Screen dimensions in pixels
-   S.screenWidth = 70;                 % Width of screen (cm)
+   S.screenWidth = 53;                 % Width of screen (cm)
 
    S.centerPix =  [...                 % Pixels for center of screen
        round((S.screenRect(3)-S.screenRect(1))/2) + S.screenRect(1),...
        round((S.screenRect(4)-S.screenRect(2))/2) + S.screenRect(2)];
    S.guiLocation = [800 100 890 660];
-   S.bgColour = 127;                   % use 127 if gamma corrected, or 186
+   S.bgColour = 0.5;                   % use 127 if gamma corrected, or 186
 
-   S.screenDistance = 57;              % Distance of eye to screen (cm)
+   S.screenDistance = 70;              % Distance of eye to screen (cm)
    S.pixPerDeg = PixPerDeg(S.screenDistance, S.screenWidth, S.screenRect(3));
 
 end

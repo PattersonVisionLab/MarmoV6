@@ -60,8 +60,8 @@ P.mingap = 1.0;
 S.mingap = 'Min gap to next target (s):';
 P.maxgap = 2.0;
 S.maxgap = 'Max gap to next target (s):';
-P.bkgd = 127;
-S.bkgd = 'Choose a grating background color (0-255):';
+P.bkgd = 0.5;
+S.bkgd = 'Choose a grating background color (0-1):';
 
 % Gaze indicator
 P.eyeRadius = 1.5; % 1.5;
@@ -97,8 +97,8 @@ S.speednum = 'Number of speeds, log 2 scale from base speed';
 %********* parameters for noise stimulus following gaze
 P.noiseradius = 50; %4.0;  % diameter of target is dva
 S.noiseradius = 'Size of Face(dva):';
-P.noiserange = 127; %48;
-S.noiserange = 'Luminance range of grating (1-127):';
+P.noiserange = 0.5; %48/255
+S.noiserange = 'Luminance range of grating (0-0.5):';
 P.squareWave = 1;
 S.squareWave = 'Use square wave in grating'; 
   
